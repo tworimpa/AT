@@ -1,0 +1,84 @@
+[submodule "multi-agent-tools/acpx"]
+	path = multi-agent-tools/acpx
+	url = https://github.com/openclaw/acpx.git
+[submodule "multi-agent-tools/agent-client-protocol"]
+	path = multi-agent-tools/agent-client-protocol
+	url = https://github.com/agentclientprotocol/agent-client-protocol.git
+[submodule "multi-agent-tools/agent-deck"]
+	path = multi-agent-tools/agent-deck
+	url = https://github.com/asheshgoplani/agent-deck.git
+[submodule "multi-agent-tools/agent-orchestrator"]
+	path = multi-agent-tools/agent-orchestrator
+	url = https://github.com/Untrivial-ai/agent-orchestrator.git
+[submodule "multi-agent-tools/agentapi"]
+	path = multi-agent-tools/agentapi
+	url = https://github.com/coder/agentapi.git
+[submodule "multi-agent-tools/agetor"]
+	path = multi-agent-tools/agetor
+	url = https://github.com/alamops/agetor.git
+[submodule "multi-agent-tools/agtx"]
+	path = multi-agent-tools/agtx
+	url = https://github.com/fynnfluegge/agtx.git
+[submodule "multi-agent-tools/beads"]
+	path = multi-agent-tools/beads
+	url = https://github.com/gastownhall/beads.git
+[submodule "multi-agent-tools/buzz"]
+	path = multi-agent-tools/buzz
+	url = https://github.com/block/buzz.git
+[submodule "multi-agent-tools/claude-squad"]
+	path = multi-agent-tools/claude-squad
+	url = https://github.com/smtg-ai/claude-squad.git
+[submodule "multi-agent-tools/cloudflare-sandbox-sdk"]
+	path = multi-agent-tools/cloudflare-sandbox-sdk
+	url = https://github.com/cloudflare/sandbox-sdk.git
+[submodule "multi-agent-tools/container-use"]
+	path = multi-agent-tools/container-use
+	url = https://github.com/dagger/container-use.git
+[submodule "multi-agent-tools/e2b"]
+	path = multi-agent-tools/e2b
+	url = https://github.com/e2b-dev/E2B.git
+[submodule "multi-agent-tools/e2b-infra"]
+	path = multi-agent-tools/e2b-infra
+	url = https://github.com/e2b-dev/infra.git
+[submodule "multi-agent-tools/emdash"]
+	path = multi-agent-tools/emdash
+	url = https://github.com/generalaction/emdash.git
+[submodule "multi-agent-tools/gastown"]
+	path = multi-agent-tools/gastown
+	url = https://github.com/gastownhall/gastown.git
+[submodule "multi-agent-tools/gh-aw"]
+	path = multi-agent-tools/gh-aw
+	url = https://github.com/github/gh-aw.git
+[submodule "multi-agent-tools/mulmoterminal"]
+	path = multi-agent-tools/mulmoterminal
+	url = https://github.com/receptron/mulmoterminal.git
+[submodule "multi-agent-tools/mux"]
+	path = multi-agent-tools/mux
+	url = https://github.com/coder/mux.git
+[submodule "multi-agent-tools/openhands"]
+	path = multi-agent-tools/openhands
+	url = https://github.com/OpenHands/OpenHands.git
+[submodule "multi-agent-tools/openhands-agent-sdk"]
+	path = multi-agent-tools/openhands-agent-sdk
+	url = https://github.com/OpenHands/software-agent-sdk.git
+[submodule "multi-agent-tools/orca"]
+	path = multi-agent-tools/orca
+	url = https://github.com/stablyai/orca.git
+[submodule "multi-agent-tools/overstory"]
+	path = multi-agent-tools/overstory
+	url = https://github.com/jayminwest/overstory.git
+[submodule "multi-agent-tools/squad"]
+	path = multi-agent-tools/squad
+	url = https://github.com/mco-org/squad.git
+[submodule "multi-agent-tools/sudocode"]
+	path = multi-agent-tools/sudocode
+	url = https://github.com/sudocode-ai/sudocode.git
+[submodule "multi-agent-tools/taskplane"]
+	path = multi-agent-tools/taskplane
+	url = https://github.com/HenryLach/taskplane.git
+[submodule "multi-agent-tools/vercel-sandbox"]
+	path = multi-agent-tools/vercel-sandbox
+	url = https://github.com/vercel/sandbox.git
+[submodule "multi-agent-tools/warren"]
+	path = multi-agent-tools/warren
+	url = https://github.com/jayminwest/warren.git

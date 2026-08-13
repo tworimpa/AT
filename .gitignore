@@ -1,0 +1,10 @@
+# Locally quarantined and intentionally not published.
+/multi-agent-tools/ntm/
+
+# Local editor and OS artifacts.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.tmp
+*.log
