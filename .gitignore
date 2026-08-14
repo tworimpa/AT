@@ -2,6 +2,7 @@
 /multi-agent-tools/ntm/
 
 # Local editor and OS artifacts.
+.obsidian/
 .DS_Store
 Thumbs.db
 .idea/
