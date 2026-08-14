@@ -2,6 +2,8 @@
 
 이 파일은 이 저장소에서 실행되는 모든 에이전트의 지속 공통 규칙이다. 역할별 책임은 작업 계약이 정하고, 모델·effort·권한·예산을 묶는 실행 정책은 [agent profile catalog](knowledge-base/agent-profiles.md)가 정한다. Profile은 역할이 아니며 역할 이름만으로 권한이나 검증 등급을 추정하지 않는다.
 
+작업 시작 전 [AX 플랫폼 지속 컨텍스트](knowledge-base/ax-platform-context.md)를 읽고 현재 목표·증거 경계·미결정을 확인한다.
+
 ## 작업 계약과 성공 기준
 
 - 시작 전에 요청 범위, 비범위, 기준 branch/SHA, 허용된 변경·외부 동작, 성공 기준과 필요한 증거를 짧게 명시한다.

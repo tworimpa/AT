@@ -15,7 +15,7 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 
 # 지식 베이스 작성 규칙과 최소 지식 그래프 스키마
 
-[지식 베이스 홈](./index.md) · [34개 도구 카탈로그](./tools/catalog.md) · [에이전트 실행 프로파일](./agent-profiles.md) · [플랫폼 청사진](./platform-blueprint.md) · [도구 프로필 템플릿](./templates/tool-profile.md)
+[지식 베이스 홈](./index.md) · [AX 플랫폼 지속 컨텍스트](./ax-platform-context.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [34개 도구 카탈로그](./tools/catalog.md) · [프로필 커버리지](./tools/coverage.md) · [에이전트 실행 프로파일](./agent-profiles.md) · [플랫폼 청사진](./platform-blueprint.md) · [도구 프로필 템플릿](./templates/tool-profile.md)
 
 ## 원칙
 
@@ -28,6 +28,7 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 7. secret 원문, credential handle 내부값과 private endpoint는 지식 베이스에 저장하지 않는다.
 8. 외부 서비스 가격·한도·상태는 TTL이 있는 관찰값으로 두고 코드·설계 사실과 분리한다.
 9. `Profile`은 모델·effort·권한·예산·evidence/escalation을 묶는 실행 정책이며 `AgentRole`과 분리한다.
+10. 고정 `ToolVersion`, 시점이 있는 `CurrentUpstreamObservation`, 분석자의 `AnalysisSnapshot`을 분리한다. 최신 관찰이 과거 고정 버전의 Claim을 바꾸지 않는다.
 
 ## 최소 엔터티
 
@@ -35,7 +36,11 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 |---|---|---|
 | Tool | 지속되는 제품·저장소·서비스 | `id`, 공식 upstream, license, maintenance status |
 | ToolVersion | 조사한 immutable 버전 | parent Tool, `version_kind`, SHA/tag/digest/API revision, observed date |
+| CurrentUpstreamObservation | upstream의 시점성 상태 | observed date, default branch/head 또는 release, activity/archive 상태, source URL, TTL |
+| AnalysisSnapshot | 특정 시점의 해석 묶음 | analysis date, 대상 ToolVersion, scope, author/reviewer, evidence ceiling |
 | Capability | 정규화된 기능 | 예: task DAG, atomic claim, ConPTY, worktree, verifier, snapshot |
+| AXNeed | 사내 업무·통제·운영 요구 | stable need ID, 이해관계자, desired outcome, 제약, 상태(`known|unknown|decision-needed`) |
+| ArchitectureDecision | 근거가 연결된 설계 선택 | decision ID, 후보, 상태(`proposed|accepted|rejected|deferred`), 결정권자·조건 |
 | AgentRole | 권한이 분리된 역할 | Planner, Scheduler, Worker, Verifier, Reviewer, Merger, Watchdog, Executor, Relay, Policy, Gateway, Spec/Memory |
 | Profile | 역할과 독립된 실행 정책 | stable profile ID/revision, model tier, effort, permission, budget, evidence와 escalation policy |
 | ExecutionRun | Profile이 해석된 실제 실행 | run ID, role, profile ID/revision, 실제 model/version·effort, environment fingerprint, cost/latency observation |
@@ -53,7 +58,13 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 |---|---|
 | `Tool HAS_VERSION ToolVersion` | 지속 ID와 고정 버전 연결 |
 | `ToolVersion SUPERSEDES ToolVersion` | 이전 조사 기록을 보존한 버전 계보 |
+| `CurrentUpstreamObservation OBSERVES Tool` | 현재 upstream 상태와 지속 Tool 연결 |
+| `AnalysisSnapshot ANALYZES ToolVersion` | 분석 시점과 immutable 대상 연결 |
 | `ToolVersion PROVIDES Capability` | 특정 버전의 기능 Claim이 있는 관계 |
+| `Capability ADDRESSES AXNeed` | 도구에서 관찰한 capability가 사내 AX 요구를 어떻게 지원하는지 연결 |
+| `AXNeed DRIVES ArchitectureDecision` | 확인된 또는 미결 요구가 설계 선택을 유발 |
+| `ArchitectureDecision SELECTS/ADAPTS/AVOIDS Capability` | Borrow·Adapt·Avoid 판단과 조건·근거 보존 |
+| `ArchitectureDecision CREATES RoadmapItem` | Build 결정과 구현·검증 작업 연결 |
 | `ToolVersion SUPPORTS Integration` | protocol/adapter 지원 Claim |
 | `ToolVersion FITS_ROLE AgentRole` | 역할에 적합하다는 판단 |
 | `AgentRole REQUIRES Capability` | 역할 수행에 필요한 기능 |
@@ -71,6 +82,8 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 | `RoadmapItem DEPENDS_ON RoadmapItem` | 선후 관계 |
 | `RoadmapItem MITIGATES Requirement` | 위험 완화 목적 |
 | `RoadmapItem VALIDATED_BY Evidence` | exit gate의 실제 증거 |
+
+`Borrow`, `Adapt`, `Avoid`, `Build`는 vendor 순위를 뜻하지 않는다. ToolVersion의 Claim을 AXNeed와 ArchitectureDecision/RoadmapItem에 연결하는 설계 관계다. 각 관계에는 `source_ids`, `claim_id`, `grade`, `conditions`, `unknowns`, `observed_at`을 두고, 회사 업종·데이터 분류·규정·승인 체계가 미제공이면 `unknown`을 사실처럼 채우지 않는다.
 
 각 edge에도 `claim_id`, `source_ids`, `evidence_ids`, `grade`, `confidence`, `observed_at`을 둘 수 있어야 한다.
 
@@ -171,10 +184,19 @@ evidence:e2b-pilot-001
 
 초기에는 사람이 리뷰 가능한 Markdown을 source of truth로 사용한다.
 
+source-of-truth 우선순위는 다음과 같다.
+
+1. `.gitmodules` URL, parent index의 mode `160000` gitlink와 official fixed-SHA permalink가 immutable identity와 정적 근거다.
+2. `knowledge-base/tools/<tool_key>.md`가 해당 ToolVersion의 현재 합성 프로필이다.
+3. `tools/catalog.md`와 coverage matrix는 프로필을 찾아가는 파생 인덱스다.
+4. `planning/REPOSITORY_GITHUB_ANALYSIS.md` 같은 기존 분석은 역사적 secondary snapshot이다. underlying fixed locator를 다시 연결하지 않으면 그 문구만으로 `V2`를 부여하지 않는다.
+
+조사일의 공식 default branch HEAD, maintenance 상태와 서비스 문서는 시변 `V1` 관찰이다. 분석한 fixed SHA와 별도 필드로 기록하며 upstream이 이동해도 기존 ToolVersion을 덮어쓰지 않는다. 조사 작업 트리에서 submodule 본문을 읽지 못하고 official GitHub fixed-SHA tree/API만 사용했다면 그 수집 경로와 local build/runtime 미수행을 `provenance limitation`에 명시한다.
+
 - 도구 프로필은 [템플릿](./templates/tool-profile.md)의 frontmatter와 섹션 순서를 따른다.
 - 내부 링크는 repository-relative Markdown link를 사용해 Obsidian과 GitHub 모두에서 연다.
 - ToolVersion에는 full SHA/tag/digest와 조사일을 반드시 기록한다.
-- Claim에는 source locator와 `V/I/W`를 기록하고 미실행 항목은 빈 evidence 또는 `unknown`으로 표시한다.
+- Claim에는 source locator와 `V/I/W`를 기록하고 미실행 항목은 빈 evidence 또는 `unknown`으로 표시한다. `V2` Claim은 40자리 SHA를 포함한 파일 permalink와 가능한 가장 좁은 line/heading anchor가 필요하다.
 - 역사 자료를 삭제하거나 현재 상태로 덮어쓰지 않는다. 새 ToolVersion과 `SUPERSEDES`를 추가하고 이전 Claim은 `stale`로 표시한다.
 - 생성 파일을 도입하면 Markdown → JSON 변환은 결정론적이어야 하며 생성 JSON은 수동 편집하지 않는다.
 
@@ -182,14 +204,22 @@ evidence:e2b-pilot-001
 
 1. **공식성 확인**: 제품 사이트, 조직, updater metadata 등으로 공식 upstream을 확인해 `I1`을 만든다.
 2. **license gate**: root와 component license/NOTICE/rider를 읽는다. 사용·분석 제한이 있으면 clone·분석·게시를 중단하고 이유만 기록한다.
-3. **immutable pin**: tag가 아니라 실제 commit SHA/image digest/API revision을 확보한다. submodule이면 gitlink·`.gitmodules`·checkout SHA 일치로 `I2`를 만든다.
-4. **프로필 생성**: [도구 프로필 템플릿](./templates/tool-profile.md)을 복사해 Tool과 ToolVersion, 역할, Integration, Windows 상태, 도입 판단을 기록한다.
-5. **Claim 분해**: “지원한다”를 기능·한계·platform·surface별 Claim으로 나누고 각 Claim에 공식 permalink나 repo-relative source locator를 붙인다.
-6. **정적 검토**: 문서만이면 `V1`, 고정 source/config/test 확인까지 했으면 Claim별 `V2`로 기록한다. Windows 전용 code path가 있을 때만 `W1`을 준다.
-7. **카탈로그 연결**: [도구 카탈로그](./tools/catalog.md)의 역할군과 도입 판단을 갱신하고 청사진의 선택·평가·보류 관계에 연결한다.
-8. **검증 계획**: build는 `V3`, runtime은 `V4`, E2E/failure injection은 `V5`로 별도 RoadmapItem과 acceptance를 만든다. 실행하지 않은 단계는 pass로 기록하지 않는다.
-9. **정적 gate**: 중복 ID, 깨진 상대 링크, SHA mismatch, license 누락, 출처 없는 Claim, artifact 없는 grade 승격, stale 조사일을 검사한다.
-10. **리뷰와 commit**: diff를 검토하고 관련 파일만 명시적으로 stage한다. 자동 수집은 provenance를 추가할 수 있지만 등급 승격에는 artifact gate와 사람 리뷰가 필요하다.
+3. **소스 보존 방식 결정**: official upstream, license/activity, 예상 설계 영향, clone 크기·비용을 기록한다. adapter·reference implementation·핵심 설계에 직접 영향을 주면 official upstream + fixed SHA gitlink submodule을 기본으로 하고, 비교·시장·문서 조사면 versioned manifest + source URL + Claim/Evidence를 기본으로 한다. 필요할 때만 shallow clone 또는 remote fixed-SHA inspection을 수행한다.
+4. **immutable pin**: tag가 아니라 실제 commit SHA/image digest/API revision을 확보한다. submodule이면 gitlink·`.gitmodules`·checkout SHA 일치로 `I2`를 만든다. manifest-only면 공식 immutable URL과 checksum/commit API 등 재현 가능한 pin을 남기고 충족한 범위에서만 `I2`를 부여한다.
+5. **프로필 생성**: [도구 프로필 템플릿](./templates/tool-profile.md)을 복사해 Tool과 ToolVersion, 역할, Integration, Windows 상태, `Borrow/Adapt/Avoid/Build`를 기록한다.
+6. **Claim 분해**: “지원한다”를 기능·한계·platform·surface별 Claim으로 나누고 각 Claim에 공식 permalink나 repo-relative source locator를 붙인다.
+7. **정적 검토**: 문서만이면 `V1`, 고정 source/config/test 확인까지 했으면 Claim별 `V2`로 기록한다. Windows 전용 code path가 있을 때만 `W1`을 준다.
+8. **카탈로그 연결**: [도구 카탈로그](./tools/catalog.md)의 역할군과 도입 판단을 갱신하고 청사진의 선택·평가·보류 관계에 연결한다.
+9. **검증 계획**: build는 `V3`, runtime은 `V4`, E2E/failure injection은 `V5`로 별도 RoadmapItem과 acceptance를 만든다. 실행하지 않은 단계는 pass로 기록하지 않는다.
+10. **정적 gate**: 중복 ID, 깨진 상대 링크, SHA mismatch, license 누락, 출처 없는 Claim, artifact 없는 grade 승격, stale 조사일을 검사한다.
+11. **리뷰와 commit**: diff를 검토하고 관련 파일만 명시적으로 stage한다. 자동 수집은 provenance를 추가할 수 있지만 등급 승격에는 artifact gate와 사람 리뷰가 필요하다.
+
+### 하이브리드 소스 운영 경계
+
+- 위 정책은 미래 신규 대상의 등록 원칙이다. 현재 34개 fixed-SHA submodule을 자동 제거하거나 재분류하지 않는다.
+- submodule 작업트리가 비어 있어도 부모 `.gitmodules`와 `git ls-tree <parent>:multi-agent-tools`로 URL과 gitlink SHA를 확인할 수 있다. 본문 Claim은 official upstream의 fixed-SHA `tree`/`blob` URL로 연결한다.
+- 부모 GitHub 저장소의 submodule 내부 경로 deep link는 소스 근거로 사용하지 않는다. checkout 상태에 따라 열리지 않으며 official upstream provenance도 흐린다.
+- `ToolVersion`, `CurrentUpstreamObservation`, `AnalysisSnapshot`은 각각 갱신한다. “현재 active/archived”, “fixed version”, “분석 당시 판단”을 한 필드로 합치지 않는다.
 
 ## 단계적 확장
 
@@ -200,3 +230,13 @@ evidence:e2b-pilot-001
 5. 확장: 다중 hop 질의와 impact 분석이 필요할 때 property graph 또는 RDF/SHACL로 import한다. Markdown/JSON은 계속 source of truth다.
 
 property graph와 RDF/SHACL 중 장기 표현은 아직 결정하지 않는다. 초기 공통 기반인 Markdown + JSON Schema + JSONL이 안정된 뒤 실제 질의 요구로 선택한다.
+
+## 상세 프로필 acceptance gate
+
+1. `.gitmodules` path, mode `160000` gitlink, catalog `tool_key`, profile `tool_key`가 34개 일대일이고 URL·full SHA가 일치한다.
+2. 목적, 공식 최신 관찰, license/NOTICE, 기술 구조, Claim, interface/protocol, trust boundary, 플랫폼/Windows, 강점·한계, 도입 판단과 다음 검증 섹션이 비어 있지 않다.
+3. capability, interface, trust/security, platform, limitation Claim이 각각 근거를 가지며 각 Claim의 `I/V/W`를 독립 판정한다.
+4. 실행 명령·exit, environment fingerprint와 보존 artifact가 모두 없으면 `V3+` 또는 `W2+`로 승격하지 않는다. upstream CI, test 파일 존재, UI 상태와 agent 자기보고도 같은 제한을 받는다.
+5. 도입 판단은 Claim ID, license/trust/platform blocker와 재검토 gate를 참조한다.
+6. 미검증 adoption-critical Claim마다 목표 등급, 환경, 시나리오, pass 기준, artifact와 승인 조건이 있는 다음 검증 항목을 둔다.
+7. 중복 ID, 깨진 상대 링크, moving-branch `V2` URL, catalog/profile 역링크, frontmatter enum/date와 SHA drift를 정적 검사한다.

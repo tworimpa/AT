@@ -15,9 +15,11 @@ verification_ceiling: V2
 
 # Windows-first 맞춤형 에이전트 플랫폼 청사진
 
-[지식 베이스 홈](./index.md) · [34개 도구 카탈로그](./tools/catalog.md) · [스키마와 작성 규칙](./knowledge-graph-schema.md)
+[지식 베이스 홈](./index.md) · [AX 플랫폼 지속 컨텍스트](./ax-platform-context.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [34개 도구 카탈로그](./tools/catalog.md) · [프로필 커버리지](./tools/coverage.md) · [스키마와 작성 규칙](./knowledge-graph-schema.md)
 
 이 문서는 [상세 오케스트레이션 기획](../planning/FAST_MULTI_AGENT_ORCHESTRATION_PLAN.md)과 [요구사항 명세](../planning/AI_AGENT_DEVELOPMENT_ENVIRONMENT_REQUIREMENTS.md)의 탐색용 의사결정 뷰다. 구현 완료 보고가 아니며 현재 상태는 설계·정적 근거 `V2`다.
+
+34개 도구의 판단은 단일 제품 도입 결론이 아니라 `Borrow`·`Adapt`·`Avoid`·`Build` 설계 재료다. 전사 업무·권한·감사·보안·운영 질문과 계층 경계는 [사내 AX reference architecture](./internal-ax-reference-architecture.md)를 기준으로 하고, 이 문서는 기술 구현 순서와 acceptance를 구체화한다.
 
 ## 제품 목표
 
@@ -55,6 +57,16 @@ flowchart LR
 ```
 
 상태 저장은 SQLite WAL event store와 replay 가능한 projection으로 시작한다. UI card는 terminal 문자열이나 agent 자기보고가 아니라 process, Git, PR, CI, review, verification event를 조합한 파생값이다.
+
+## 어댑터·실행기·권한 통합 원칙
+
+1. adapter 우선순위는 **typed API → ACP → 구조화 JSON CLI → PTY heuristic**이다. 뒤 단계로 갈수록 관찰 가능한 lifecycle과 completion confidence가 낮아지며, PTY 화면 문자열만으로 success를 만들지 않는다.
+2. 모든 adapter와 executor는 명시적인 `run_id`, provider `session_id`, workspace generation과 lease/fence token을 주고받는다. warm session replay나 resume 뒤에도 이전 owner·generation의 늦은 event가 현재 run을 완료시키지 못해야 한다.
+3. local ConPTY, WSL/container와 E2B·Vercel·Cloudflare 같은 remote backend는 같은 conformance fixture를 실행하되 command, PTY, file, cancel, timeout, resume/fork, network와 artifact capability의 미지원 상태를 명시한다.
+4. secret은 agent나 sandbox에 real credential을 기본 상속하지 않고 audience·scope·TTL이 제한된 opaque handle로 전달한다. 실제 credential materialization은 승인된 trusted proxy 또는 external-write stage에서만 수행한다.
+5. 자동화는 `read-only proposal → deterministic policy / independent verifier / human approval → credentialed committer`로 분리한다. proposal 생성기와 외부 write 권한 보유자를 같은 trust domain으로 합치지 않는다.
+6. Hermes·OpenClaw 같은 personal gateway는 provenance 있는 intake connector로 취급하고 coding executor의 repository·secret·merge 권한을 암묵 상속하지 않는다.
+7. desktop/mobile/board UI는 event와 외부 시스템을 조합한 derived projection이다. stale PR·CI·review 또는 terminal 상태를 fresh verification으로 표시하지 않으며 source event와 관찰 시각을 드릴다운할 수 있어야 한다.
 
 ## 에이전트 역할과 권한
 
