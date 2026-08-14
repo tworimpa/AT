@@ -10,12 +10,12 @@ tags:
   - provenance
   - evidence
 observed_at: 2026-08-14
-source_parent_commit: 4e6731a1b274eba5a8451b97594aadcf570108ee
+source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 ---
 
 # 지식 베이스 작성 규칙과 최소 지식 그래프 스키마
 
-[지식 베이스 홈](./index.md) · [34개 도구 카탈로그](./tools/catalog.md) · [플랫폼 청사진](./platform-blueprint.md) · [도구 프로필 템플릿](./templates/tool-profile.md)
+[지식 베이스 홈](./index.md) · [34개 도구 카탈로그](./tools/catalog.md) · [에이전트 실행 프로파일](./agent-profiles.md) · [플랫폼 청사진](./platform-blueprint.md) · [도구 프로필 템플릿](./templates/tool-profile.md)
 
 ## 원칙
 
@@ -27,6 +27,7 @@ source_parent_commit: 4e6731a1b274eba5a8451b97594aadcf570108ee
 6. 실패와 반증 evidence를 삭제하지 않고 `unknown`, `partial`, `fail`을 구분한다.
 7. secret 원문, credential handle 내부값과 private endpoint는 지식 베이스에 저장하지 않는다.
 8. 외부 서비스 가격·한도·상태는 TTL이 있는 관찰값으로 두고 코드·설계 사실과 분리한다.
+9. `Profile`은 모델·effort·권한·예산·evidence/escalation을 묶는 실행 정책이며 `AgentRole`과 분리한다.
 
 ## 최소 엔터티
 
@@ -36,6 +37,8 @@ source_parent_commit: 4e6731a1b274eba5a8451b97594aadcf570108ee
 | ToolVersion | 조사한 immutable 버전 | parent Tool, `version_kind`, SHA/tag/digest/API revision, observed date |
 | Capability | 정규화된 기능 | 예: task DAG, atomic claim, ConPTY, worktree, verifier, snapshot |
 | AgentRole | 권한이 분리된 역할 | Planner, Scheduler, Worker, Verifier, Reviewer, Merger, Watchdog, Executor, Relay, Policy, Gateway, Spec/Memory |
+| Profile | 역할과 독립된 실행 정책 | stable profile ID/revision, model tier, effort, permission, budget, evidence와 escalation policy |
+| ExecutionRun | Profile이 해석된 실제 실행 | run ID, role, profile ID/revision, 실제 model/version·effort, environment fingerprint, cost/latency observation |
 | Integration | protocol·adapter·state interface | ACP, MCP, JSON-RPC, CLI, PTY, HTTP/SSE, WebSocket, GitHub, SQLite |
 | SecurityOperationalRequirement | 보안·운영 조건 | isolation, secret audience/redaction, egress, retention, readiness, fencing, recovery, cost/SLO |
 | Claim | 참·거짓·부분 여부를 검증할 문장 | subject, predicate, object/value, scope, status |
@@ -54,6 +57,9 @@ source_parent_commit: 4e6731a1b274eba5a8451b97594aadcf570108ee
 | `ToolVersion SUPPORTS Integration` | protocol/adapter 지원 Claim |
 | `ToolVersion FITS_ROLE AgentRole` | 역할에 적합하다는 판단 |
 | `AgentRole REQUIRES Capability` | 역할 수행에 필요한 기능 |
+| `AgentRole MAY_USE Profile` | 역할과 실행 정책을 동일시하지 않는 허용 관계 |
+| `Profile CONFIGURES ExecutionRun` | 선택 정책과 실제 실행 해석 연결 |
+| `ExecutionRun PRODUCES Evidence` | 실제 model/effort/environment와 검증 artifact 연결 |
 | `Integration CONNECTS ToolVersion/Executor` | 연결 가능한 runtime 또는 executor |
 | `ToolVersion SATISFIES/REQUIRES/VIOLATES Requirement` | 보안·운영 조건에 대한 상태 |
 | `Claim ABOUT node/edge` | 검증 대상 지정 |

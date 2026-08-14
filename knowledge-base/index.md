@@ -10,7 +10,7 @@ tags:
   - ai-agent
   - index
 observed_at: 2026-08-14
-source_parent_commit: caaae4a47a127808eedac657c394b6a8fd9be460
+source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 ---
 
 # AI 에이전트 지식 베이스
@@ -34,6 +34,8 @@ source_parent_commit: caaae4a47a127808eedac657c394b6a8fd9be460
 
 - [34개 도구 역할·도입 카탈로그](./tools/catalog.md): 역할별 조사 목록, 공식 upstream, 고정 SHA, 도입 판단과 현재 증거 등급
 - [Paseo 고정 ToolVersion 프로필](./tools/paseo.md): multi-provider control plane, protocol, Windows 정적 근거와 명시적 한계
+- [에이전트 실행 프로파일](./agent-profiles.md): 역할과 분리된 모델 등급·effort·권한·예산·증거·escalation 정책
+- [공통 에이전트 운영 규칙](../AGENTS.md): 모든 작업에 지속 적용되는 범위·권한·증거·완료 보고 규칙
 - [Windows-first 에이전트 플랫폼 청사진](./platform-blueprint.md): 목표 구조, 에이전트 역할, 우선 로드맵과 결정 게이트
 - [지식 베이스 규칙과 최소 지식 그래프 스키마](./knowledge-graph-schema.md): 노드·관계·provenance, `V/I/W` 축, 새 도구 추가 절차
 - [도구 프로필 템플릿](./templates/tool-profile.md): 새 ToolVersion을 같은 형식으로 기록하는 시작점
@@ -51,7 +53,8 @@ source_parent_commit: caaae4a47a127808eedac657c394b6a8fd9be460
 1. 도구를 찾을 때는 [카탈로그](./tools/catalog.md)에서 역할과 도입 판단을 확인한다.
 2. 제품에 넣을 기능은 [청사진](./platform-blueprint.md)의 단계와 acceptance에 연결한다.
 3. 문서상 주장과 실제 증거는 [스키마](./knowledge-graph-schema.md)의 `Claim → SourceArtifact → Evidence` 구조로 기록한다.
-4. 새 자료는 기존 ToolVersion을 덮어쓰지 않고 새 버전과 `SUPERSEDES` 관계를 추가한다.
+4. 실행할 때는 [프로파일 카탈로그](./agent-profiles.md)에서 권한과 증거 요구를 선택하고 실제 model/version·effort·환경·cost/latency 관찰을 기록한다.
+5. 새 자료는 기존 ToolVersion을 덮어쓰지 않고 새 버전과 `SUPERSEDES` 관계를 추가한다.
 
 ## 현재 경계
 
