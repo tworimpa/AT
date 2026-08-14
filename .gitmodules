@@ -97,3 +97,7 @@
 [submodule "multi-agent-tools/cline"]
 	path = multi-agent-tools/cline
 	url = https://github.com/cline/cline.git
+[submodule "multi-agent-tools/paseo"]
+	path = multi-agent-tools/paseo
+	url = https://github.com/getpaseo/paseo.git
+	shallow = true

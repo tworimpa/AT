@@ -2,11 +2,11 @@
 
 조사 기준일: 2026-08-14 (Asia/Seoul)
 
-이 디렉터리는 Orca/Buzz와 두 도구에 인접한 **멀티 에이전트 코딩 운영 도구, 상호운용 protocol, CI automation 및 원격 sandbox 구현**을 비교하기 위한 소스 스냅샷이다. 조사 당시 license rider로 제외한 NTM을 뺀 33개를 분석했고, 공개 부모 저장소에는 이 33개만 submodule로 등록했다. 모두 shallow clone으로 확보했으며, 대형 `gh-aw`는 추가로 partial clone+sparse checkout을 사용했다. 의존성 설치·빌드·실행·사용자 설정 변경은 수행하지 않았다.
+이 디렉터리는 Orca/Buzz와 두 도구에 인접한 **멀티 에이전트 코딩 운영 도구, 상호운용 protocol, CI automation 및 원격 sandbox 구현**을 비교하기 위한 소스 스냅샷이다. 조사 당시 license rider로 제외한 NTM을 뺀 34개를 분석했고, 공개 부모 저장소에는 이 34개만 submodule로 등록했다. 모두 shallow clone으로 확보했으며, 대형 `gh-aw`는 추가로 partial clone+sparse checkout을 사용했다. 의존성 설치·빌드·실행·사용자 설정 변경은 수행하지 않았다.
 
 ## 분석 산출물
 
-- [33개 저장소 코드·GitHub 분석](../planning/REPOSITORY_GITHUB_ANALYSIS.md)
+- [34개 저장소 코드·GitHub 분석](../planning/REPOSITORY_GITHUB_ANALYSIS.md)
 - [AI 코딩 에이전트 도구·서비스 landscape](../planning/AI_CODING_AGENT_TOOLS_AND_SERVICES_LANDSCAPE.md)
 - [빠른 멀티 에이전트 실행·오케스트레이션 기획](../planning/FAST_MULTI_AGENT_ORCHESTRATION_PLAN.md)
 - [AI 에이전트 기반 개발 환경 요구사항](../planning/AI_AGENT_DEVELOPMENT_ENVIRONMENT_REQUIREMENTS.md)
@@ -48,6 +48,7 @@
 | [OpenClaw](./openclaw/) | single-operator assistant gateway/control plane | ACP core 포함 | gateway session/tool/event/channel, plugin·skill, companion node, host/sandbox 경계 | Windows 지원 범위는 정적 확인만 수행 | MIT; component notice 존재 | assistant gateway trust-domain 기준점 |
 | [OpenAI Codex](./codex/) | local coding-agent runtime | 자체 runtime | CLI·TUI·app-server JSON-RPC, resume·approval, OS sandbox·network policy, MCP | Windows sandbox 구현이 있으나 build/E2E 미검증 | Apache-2.0 + NOTICE | surface별 capability profile 기준점 |
 | [Cline](./cline/) | IDE/CLI coding agent | 자체 runtime | VS Code·JetBrains·headless CLI, hub/provider abstraction, MCP approval, checkpoint·subagent | Windows 실제 실행은 미검증 | Apache-2.0 | IDE/CLI/hub surface 분리 기준점 |
+| [Paseo](./paseo/) | multi-provider local agent control plane | Codex·Claude·Copilot·OpenCode·Pi 및 ACP catalog | daemon, WebSocket/SDK/CLI/MCP, worktree workspace, optional E2EE relay | Windows executable/ConPTY/`.cmd` 경로를 정적 확인; 실제 실행 미검증 | AGPL-3.0 계열(파일별 확인) | Windows·cross-device 관제 pilot와 clean-room protocol 비교 |
 
 ## Windows에서 먼저 볼 순서
 
@@ -73,6 +74,7 @@
 20. `codex`와 `cline`: CLI·TUI·app-server 또는 IDE·CLI·hub를 각각 별도 capability surface로 비교한다.
 21. `deepseek-harness`: Cordis plugin tree, ACP와 local/E2B provider의 capability seam을 확인한다.
 22. `hermes-agent`와 `openclaw`: coding workspace보다 넓은 channel·memory·credential trust domain을 확인한다.
+23. `paseo`: multi-provider daemon, Windows ConPTY/`.cmd` 처리, worktree workspace, MCP/ACP와 cross-device E2EE relay를 비교한다. worktree와 relay를 sandbox로 오해하지 않는다.
 
 ## 정확한 클론 기준점
 
@@ -111,6 +113,7 @@
 | `openclaw/openclaw` | `main` | `f49eaf86399b91a1a7273ee2405bb298d64e9387` |
 | `openai/codex` | `main` | `1c4f42863c1f84eb5175a1a0cfffe84641a63df3` |
 | `cline/cline` | `main` | `3e0aac53a2f5f408a89a957d75430f6ec4084497` |
+| `getpaseo/paseo` | `main` | `f0bd2c8483ff7961fdf6c0cd2070835741f6ac92` |
 
 각 저장소는 독립된 Git 저장소다. 최신 이력 전체가 필요할 때만 해당 디렉터리에서 `git fetch --unshallow`을 실행한다.
 

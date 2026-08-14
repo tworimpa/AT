@@ -4,7 +4,7 @@
 
 기준일: 2026-08-14
 
-근거: [33개 저장소 코드·GitHub 분석](./REPOSITORY_GITHUB_ANALYSIS.md), [도구·서비스 landscape](./AI_CODING_AGENT_TOOLS_AND_SERVICES_LANDSCAPE.md)
+근거: [34개 저장소 코드·GitHub 분석](./REPOSITORY_GITHUB_ANALYSIS.md), [도구·서비스 landscape](./AI_CODING_AGENT_TOOLS_AND_SERVICES_LANDSCAPE.md)
 
 ## 1. 목표
 

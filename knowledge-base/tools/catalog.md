@@ -1,23 +1,23 @@
 ---
 id: tool-catalog-2026-08-14
 type: catalog
-title: 33개 AI 에이전트 도구 역할 및 도입 판단
+title: 34개 AI 에이전트 도구 역할 및 도입 판단
 status: active
 tags:
   - knowledge-base
   - tool-catalog
   - provenance
 observed_at: 2026-08-14
-source_parent_commit: 4e6731a1b274eba5a8451b97594aadcf570108ee
+source_parent_commit: caaae4a47a127808eedac657c394b6a8fd9be460
 origin_integrity: I2
 verification_ceiling: V2
 ---
 
-# 33개 AI 에이전트 도구 역할 및 도입 판단
+# 34개 AI 에이전트 도구 역할 및 도입 판단
 
 [지식 베이스 홈](../index.md) · [플랫폼 청사진](../platform-blueprint.md) · [스키마와 작성 규칙](../knowledge-graph-schema.md)
 
-이 문서는 기존 상세 분석을 다시 풀어 쓰는 보고서가 아니라 역할별 탐색 인덱스다. 기능·제약의 상세 근거는 [저장소 분석](../../planning/REPOSITORY_GITHUB_ANALYSIS.md)과 [소스 스냅샷 인덱스](../../multi-agent-tools/README.md)를 따른다. 모든 SHA는 부모 저장소 `4e6731a1b274eba5a8451b97594aadcf570108ee`의 gitlink이며 공식 upstream URL은 같은 커밋의 `.gitmodules`에서 확인했다.
+이 문서는 기존 상세 분석을 다시 풀어 쓰는 보고서가 아니라 역할별 탐색 인덱스다. 기능·제약의 상세 근거는 [저장소 분석](../../planning/REPOSITORY_GITHUB_ANALYSIS.md)과 [소스 스냅샷 인덱스](../../multi-agent-tools/README.md)를 따른다. 기존 33개 SHA는 부모 저장소 `4e6731a1b274eba5a8451b97594aadcf570108ee`의 gitlink이며, Paseo는 2026-08-14에 확인한 fixed SHA를 새 gitlink로 추가했다. 공식 upstream URL은 `.gitmodules`에서 확인한다.
 
 ## 판단 기호
 
@@ -42,6 +42,7 @@ verification_ceiling: V2
 | [Agetor](https://github.com/alamops/agetor) | [`2a4f1a1f3eb8a88aae8bd9581592a5c109d87a85`](../../multi-agent-tools/agetor/) | 로컬 칸반, 승인·질문·worktree 제어면 | 참고: structured interaction, 성숙도는 보류 | `I2 / V2 / W1` |
 | [Emdash](https://github.com/generalaction/emdash) | [`4366fcd589ae06014afa665bb900c93c1fcf9f54`](../../multi-agent-tools/emdash/) | cross-platform agent desktop와 staged provisioning | 채택: durable workspace 수명주기 패턴 | `I2 / V2 / W1` |
 | [Mux](https://github.com/coder/mux) | [`92e563e57a5778e197fc1ed48b6d24ea64d38d3f`](../../multi-agent-tools/mux/) | provider-neutral desktop, 비용·patch preflight | 참고: UX만 clean-room, AGPL 직접 통합 보류 | `I2 / V2 / W0` |
+| [Paseo](https://github.com/getpaseo/paseo) | [`f0bd2c8483ff7961fdf6c0cd2070835741f6ac92`](./paseo.md) | local daemon 기반 multi-provider desktop/mobile/web/CLI control plane | 파일럿: Windows·cross-device 관제와 MCP/ACP/worktree UX; AGPL 직접 통합 보류 | `I2 / V2 / W1` |
 
 ## Scheduler, coordinator와 integration lane
 
@@ -116,6 +117,7 @@ verification_ceiling: V2
 
 - NTM은 license rider 때문에 분석·재사용·지식 그래프 seed에서 제외한다.
 - Claude Squad와 Mux의 AGPL 코드는 제품에 직접 포함하지 않고 공개 아이디어만 clean-room으로 참고한다.
+- Paseo의 AGPL 코드도 제품에 직접 포함하지 않고 [고정 ToolVersion 프로필](./paseo.md)의 protocol·상태 모델과 한계를 clean-room 비교한다.
 - Overstory는 archived 계보 자료이며 현재 운영 후보가 아니다.
 - PTY 화면 안정성이나 agent 자기보고는 completion 또는 verification으로 승격하지 않는다.
 - 표의 모든 도입 판단은 설계 선택 또는 pilot 우선순위다. 구매, 배포, production acceptance를 의미하지 않는다.

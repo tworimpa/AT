@@ -15,7 +15,7 @@ source_parent_commit: 4e6731a1b274eba5a8451b97594aadcf570108ee
 
 # 지식 베이스 작성 규칙과 최소 지식 그래프 스키마
 
-[지식 베이스 홈](./index.md) · [33개 도구 카탈로그](./tools/catalog.md) · [플랫폼 청사진](./platform-blueprint.md) · [도구 프로필 템플릿](./templates/tool-profile.md)
+[지식 베이스 홈](./index.md) · [34개 도구 카탈로그](./tools/catalog.md) · [플랫폼 청사진](./platform-blueprint.md) · [도구 프로필 템플릿](./templates/tool-profile.md)
 
 ## 원칙
 

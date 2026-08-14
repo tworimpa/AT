@@ -24,10 +24,11 @@ AI 코딩 개발 환경을 빠르게 개선하려면 하나의 거대한 에이�
 
 ## 2. 증거 경계
 
-- 조사 당시 NTM을 제외한 33개 저장소를 분석하고 공개 부모 저장소의 submodule로 등록했다.
+- 조사 당시 NTM을 제외한 34개 저장소를 분석하고 공개 부모 저장소의 submodule로 등록했다.
 - 기존 10개 저장소에 Emdash, Gas Town, Taskplane, Agent Orchestrator, sudocode, Mux, Beads, E2B SDK, E2B Infra, OpenHands/Agent Canvas, OpenHands Software Agent SDK, Agent Client Protocol, acpx, AgentAPI, Vercel Sandbox, GitHub Agentic Workflows, Container Use, Cloudflare Sandbox SDK를 추가했다.
 - 모든 분석 대상은 `--depth 1` shallow clone이며 checkout은 clean 상태다.
 - 신규 5개는 DeepSeek Harness(plugin-composed harness), Hermes Agent·OpenClaw(personal assistant runtime/gateway), OpenAI Codex·Cline(coding-agent runtime) 계층에 둔다. 근거는 고정 SHA의 source와 문서이며 install, build, Windows 실행, remote provider, 실 agent E2E는 수행하지 않았다.
+- Paseo는 multi-provider local control plane 계층에 추가했다. daemon·WebSocket·SDK/CLI/MCP, ACP/native provider adapter, worktree workspace, optional E2EE relay와 Windows source path를 고정 SHA에서 확인했지만 build/runtime/E2E는 수행하지 않았다.
 - 의존성 설치, 전체 빌드, 실제 에이전트 실행, E2E, 서비스 가입이나 유료 기능 검증은 하지 않았다.
 - GitHub 수치와 서비스 기능은 조사일의 공개 정보 스냅샷이다. 요금, 한도, 지원 플랫폼은 별도 구매 결정 전에 다시 확인해야 한다.
 - `ntm`은 clone 후 LICENSE의 추가 rider가 OpenAI/Anthropic 및 그 관계자의 사용·분석을 금지함을 발견했다. 즉시 분석에서 제외했으며 삭제는 명시적 승인 전까지 보류한다.
@@ -54,6 +55,7 @@ AI 코딩 개발 환경을 빠르게 개선하려면 하나의 거대한 에이�
 | [GitHub Agentic Workflows](../multi-agent-tools/gh-aw/) | Markdown→GitHub Actions agent workflow compiler | YAML frontmatter+Markdown을 `.lock.yml`로 compile, strict schema/expression/action-pin validation, read-only agent job, AWF sandbox/firewall, buffered safe-output와 별도 write job | CLI는 Windows에서도 설치 가능하지만 실행 substrate는 Actions runner; 대형 repo는 partial+sparse clone으로 핵심 compiler/docs만 checkout | MIT | event/schedule 기반 Continuous AI와 최소권한 stage compiler 기준점 |
 | [Container Use](../multi-agent-tools/container-use/) | MCP/CLI local container workspace | 환경별 branch/worktree, Dagger container, setup-before-source cache, service binding, 실행 결과 export·commit, Git notes 상태·명령 로그 | Dagger runtime과 privileged nesting을 사용하며 native Windows/ConPTY executor가 아님. config와 state에 secret reference 문자열이 남고 현재 CLI가 이를 그대로 출력하므로 secret 정책은 재설계 필요 | Apache-2.0 | 재현 가능한 local-container executor의 유력 기준점이지만 secret subsystem은 clean-room 재설계 |
 | [Cloudflare Sandbox SDK](../multi-agent-tools/cloudflare-sandbox-sdk/) | hosted container SDK/control plane | Worker→Durable Object→capnweb RPC WebSocket→container service의 3계층, command/file/process/session, runtime identity, sleep-after, R2 backup, runtime-scoped preview activation | local dev는 Docker가 필요하고 실제 isolation·capacity·retention은 Cloudflare platform 계약이다. session은 cwd/env context이지 별도 VM이 아니며 preview token은 durable해도 restart 뒤 재활성화가 필요 | Apache-2.0 파일(Forge API는 `NOASSERTION`) | remote executor generation fencing, control/data-plane, service readiness의 강한 기준점 |
+| [Paseo](../multi-agent-tools/paseo/) | multi-provider local agent control plane | daemon, WebSocket/SDK/CLI/MCP, native·ACP provider adapter, worktree workspace, permission/schedule, optional E2EE relay | Windows executable·ConPTY·`.cmd` 경로는 정적 확인했지만 host subprocess는 sandbox가 아니며 실제 Windows 실행은 미검증 | AGPL-3.0 계열(파일별 확인) | cross-device 관제와 provider-neutral UX를 pilot하고 protocol/state pattern만 clean-room 참고 |
 
 ### 3.1 코드 구조에서 얻은 구체적 교훈
 
@@ -100,6 +102,8 @@ AI 코딩 개발 환경을 빠르게 개선하려면 하나의 거대한 에이�
 - 단일 RPC promise가 반환돼도 peer가 반환한 stream은 계속 busy일 수 있어 SDK가 RPC import/export table을 관찰하며 sleep deadline을 갱신한다. remote executor의 idle 판단도 API call 반환이나 terminal silence가 아니라 live stream/process/resource lease를 포함해야 한다.
 - session은 cwd·env를 나누는 execution context이며 sandbox/container와 동일한 isolation 단위가 아니다. `sandbox_id`, `runtime_generation`, `session_id`, `process_id`, `service_preview_activation`을 각각 추적해야 한다.
 - Cloudflare의 platform 문서는 sandbox별 VM isolation을 제공한다고 명시하지만 같은 sandbox의 모든 session은 filesystem·process·network를 공유한다. multi-tenant 또는 서로 신뢰하지 않는 agent는 session이 아니라 sandbox를 분리해야 한다.
+- Paseo는 여러 provider의 native adapter와 generic ACP adapter를 같은 daemon/client 표면에 투영한다. control plane은 provider별 mode·permission·session capability를 공통 최소값으로 평탄화하지 말고 실행 시 snapshot해야 한다.
+- Paseo의 worktree workspace와 optional E2EE relay는 각각 파일 상태 분리와 전송 보호다. agent process는 기존 사용자 credential을 가진 host subprocess이므로 별도 executor/sandbox와 credential policy를 유지해야 한다.
 - outbound handler/allowlist는 강력하지만 programmable interception 범위는 HTTP/HTTPS다. public internet을 켜 둔 상태의 비-HTTP traffic을 같은 정책이 막는다고 가정하지 말고 `enableInternet=false`를 기본으로 한 뒤 protocol별 enforcement coverage를 Evidence에 남겨야 한다.
 - credential은 sandbox env/file로 직접 주기보다 trusted Worker proxy가 short-lived JWT를 검증한 뒤 upstream 요청에 실제 credential을 붙이는 구조가 낫다. 이는 AIDE Fleet의 scoped committer/credential gateway를 data-plane API 호출에도 확장한 패턴이다.
 - custom-domain preview와 quick tunnel은 다른 노출 방식이다. quick tunnel은 별도 access token이 없고 restart 때 URL이 바뀌므로 민감한 service에는 사용하지 않으며 preview/tunnel마다 authentication, hostname stability, TTL, restart semantics를 capability로 광고해야 한다.

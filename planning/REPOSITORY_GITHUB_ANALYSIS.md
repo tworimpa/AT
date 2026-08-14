@@ -4,7 +4,7 @@
 
 ## 1. 분석 범위와 증거 경계
 
-이 문서는 `multi-agent-tools/`에 shallow clone한 33개 분석 대상 저장소의 코드, 공식 문서, 테스트 구조와 GitHub 공개 메타데이터를 비교한다. 로컬 분석은 [클론 기준점](../multi-agent-tools/README.md#정확한-클론-기준점)에 기록된 SHA를 기준으로 했다. 대형 gh-aw는 blobless partial clone+sparse checkout을 사용하되 전체 Git tree로 파일 지표를 계산했다. 별도로 clone된 NTM은 LICENSE rider 확인 즉시 분석에서 제외했다.
+이 문서는 `multi-agent-tools/`에 shallow clone한 34개 분석 대상 저장소의 코드, 공식 문서, 테스트 구조와 GitHub 공개 메타데이터를 비교한다. 로컬 분석은 [클론 기준점](../multi-agent-tools/README.md#정확한-클론-기준점)에 기록된 SHA를 기준으로 했다. 대형 gh-aw는 blobless partial clone+sparse checkout을 사용하되 전체 Git tree로 파일 지표를 계산했다. 별도로 clone된 NTM은 LICENSE rider 확인 즉시 분석에서 제외했다.
 
 - 확인함: 저장소 구조, 상태 모델, worktree/세션/메시징/스케줄링/복구/병합 코드, 라이선스, GitHub 활동·릴리스·이슈/PR 개수.
 - 확인하지 않음: 모든 저장소의 의존성 설치, 전체 빌드, 실 에이전트 E2E, 실제 Windows 성능, 보안 침투 시험.
@@ -14,7 +14,7 @@
 
 ## 2. 핵심 결론
 
-현재 도구들은 크게 열 부류로 나뉜다.
+현재 도구들은 크게 열한 부류로 나뉜다.
 
 1. **빠른 세션 관제형**: Orca, MulmoTerminal, Claude Squad, Agent Deck. 여러 에이전트를 띄우고 worktree·터미널·diff를 사람이 빠르게 관제하는 데 강하다.
 2. **자동 오케스트레이션형**: agtx, Agetor, Overstory, Warren. 작업 상태, 의존성, 감시, 승인, 복구, 병합 또는 샌드박스를 자동화하는 데 강하다.
@@ -26,6 +26,7 @@
 8. **coding-agent runtime형**: OpenAI Codex, Cline. CLI·TUI·app-server 또는 IDE·CLI·hub처럼 실행 surface별 capability와 승인·sandbox 경계가 다르다.
 9. **personal assistant runtime·gateway형**: Hermes Agent, OpenClaw. channel, memory, cron, companion node 때문에 일반 coding workspace보다 넓은 identity·credential trust domain을 가진다.
 10. **plugin-composed agent harness형**: DeepSeek Harness. Cordis plugin tree와 durable session event 위에 ACP, subagent, local/E2B provider를 capability seam으로 조합한다.
+11. **multi-provider local control plane형**: Paseo. 기존 agent CLI를 provider adapter로 실행하고 daemon·WebSocket·MCP·SDK·desktop/mobile client와 worktree workspace를 한 표면으로 묶는다.
 
 Buzz와 squad는 이 둘을 연결하는 **통신·작업 프로토콜 계층**에 가깝다. 신규 도구의 기회는 관제형의 짧은 시작 시간과 오케스트레이션형의 구조화된 완료 증명을 하나의 점진적 실행 모델로 통합하는 것이다.
 
@@ -61,6 +62,7 @@ Buzz와 squad는 이 둘을 연결하는 **통신·작업 프로토콜 계층**�
 | GitHub Agentic Workflows | YAML frontmatter+Markdown source를 strict schema, expression/template-injection, permission, action-pin, firewall validation 뒤 `.lock.yml` Actions workflow로 compile한다. agent job은 최소 read 권한으로 artifact만 만들고 별도 threat detection과 scope별 safe-output job이 외부 write를 담당한다. | Public Preview이고 GitHub Actions runtime·GitHub forge에 결합된다. AI threat detection은 deterministic sanitizer/policy의 대체가 아니며 sandbox도 runner host, API proxy, MCP gateway 신뢰를 없애지 않는다. | [architecture](https://github.com/github/gh-aw/blob/ef14fabf6dc17e6f5862dd5de7c905ea0e9299f7/docs/src/content/docs/introduction/architecture.mdx), [compiler](https://github.com/github/gh-aw/blob/ef14fabf6dc17e6f5862dd5de7c905ea0e9299f7/pkg/workflow/compiler.go), [safe-output job](https://github.com/github/gh-aw/blob/ef14fabf6dc17e6f5862dd5de7c905ea0e9299f7/pkg/workflow/compiler_safe_outputs_job.go), [공식 GitHub](https://github.com/github/gh-aw) |
 | Container Use | 환경별 branch/worktree와 Dagger container를 결합하고 setup-before-source cache, install-after-source, service binding, command/file 변경 export·commit, Git notes 상태·실행 로그를 MCP/CLI로 제공한다. 실패 command 뒤에도 container state를 보존해 재현·디버깅할 수 있다. | Dagger와 privileged nesting이 필요한 local container 경계다. 현재 source에는 secret reference 문자열을 project JSON과 Git notes state에 직렬화하고 `show/list`에서 값까지 출력하는 경로가 있어 문서의 masking 주장과 불일치한다. secret subsystem은 채택하면 안 된다. | [environment lifecycle](https://github.com/dagger/container-use/blob/2e43e625e95216b719ec9338f4034fd3a0be2734/environment/environment.go), [config serialization](https://github.com/dagger/container-use/blob/2e43e625e95216b719ec9338f4034fd3a0be2734/environment/config.go), [Git notes state](https://github.com/dagger/container-use/blob/2e43e625e95216b719ec9338f4034fd3a0be2734/repository/git.go), [공식 GitHub](https://github.com/dagger/container-use) |
 | Cloudflare Sandbox SDK | Worker→Durable Object→RPC WebSocket→container service를 primary control path로 두고 HTTP client는 compatibility path로 유지한다. command/file/process/session, streaming, sleep-after, R2 backup, tokenized preview를 제공하며 persisted runtime identity로 restart 뒤 stale stream·preview activation을 차단한다. | session은 cwd/env context이지 별도 격리 sandbox가 아니다. local 개발은 Docker, production isolation·capacity·retention은 Cloudflare platform 경계이며 preview는 custom wildcard domain과 restart 후 재활성화가 필요하다. | [architecture](https://github.com/cloudflare/sandbox-sdk/blob/2dd1476e32769656da97d5a8daf75e2f92b57e71/.agents/skills/architecture/SKILL.md), [runtime identity](https://github.com/cloudflare/sandbox-sdk/blob/2dd1476e32769656da97d5a8daf75e2f92b57e71/packages/sandbox/src/current-runtime-identity.ts), [sandbox lifecycle](https://github.com/cloudflare/sandbox-sdk/blob/2dd1476e32769656da97d5a8daf75e2f92b57e71/packages/sandbox/src/sandbox.ts), [공식 GitHub](https://github.com/cloudflare/sandbox-sdk) |
+| Paseo | local daemon이 Claude Code·Codex·Copilot·OpenCode·Pi와 generic ACP agent를 공통 lifecycle로 감싸고 WebSocket client, CLI/SDK/MCP, worktree workspace, permission/schedule, optional E2EE relay를 제공한다. Windows executable 탐색과 ConPTY용 `.cmd/.bat` escaping도 구현한다. | 기존 CLI와 사용자 credential에 의존하며 host subprocess는 sandbox가 아니다. worktree는 파일 격리이고 relay는 전송 보호다. AGPL 계열이므로 제품 코드 직접 결합보다 clean-room 비교가 적합하며 build·runtime·Windows·agent E2E는 미검증이다. | [profile](../knowledge-base/tools/paseo.md), [architecture](https://github.com/getpaseo/paseo/blob/f0bd2c8483ff7961fdf6c0cd2070835741f6ac92/docs/architecture.md), [Windows terminal](https://github.com/getpaseo/paseo/blob/f0bd2c8483ff7961fdf6c0cd2070835741f6ac92/packages/server/src/terminal/terminal.ts#L235), [공식 GitHub](https://github.com/getpaseo/paseo) |
 
 ### 3.1 신규 5개 저장소
 
@@ -111,6 +113,7 @@ Buzz와 squad는 이 둘을 연결하는 **통신·작업 프로토콜 계층**�
 | `github/gh-aw` | 4,925 | 494 | 335 | 2026-08-13 | MIT |
 | `dagger/container-use` | 4,004 | 202 | 57 | 2026-08-12 | Apache-2.0 |
 | `cloudflare/sandbox-sdk` | 1,105 | 112 | 19 | 2026-08-13 | Apache-2.0 파일 (`NOASSERTION` API) |
+| `getpaseo/paseo` | 13,688 | 1,410 | 802 | 2026-08-14 | AGPL-3.0 root text (`NOASSERTION` API) |
 
 해석 시 주의할 점:
 
@@ -289,7 +292,7 @@ RPC 호출이 stream handle을 반환한 뒤에도 peer는 계속 출력할 수 
 
 - MIT: Orca, squad, MulmoTerminal, Agent Deck, Agetor, Overstory, Warren, Gas Town, Taskplane, Beads, OpenHands/Agent Canvas, OpenHands Software Agent SDK, acpx, AgentAPI, GitHub Agentic Workflows, DeepSeek Harness, Hermes Agent, OpenClaw. Hermes의 optional skills 등 하위 content에는 별도 라이선스가 있을 수 있다.
 - Apache-2.0: Buzz, agtx, Emdash, Agent Orchestrator, sudocode, E2B, E2B Infra, Agent Client Protocol, Vercel Sandbox, Container Use, Cloudflare Sandbox SDK의 LICENSE 파일, OpenAI Codex, Cline. Cloudflare 저장소 API는 SPDX를 `NOASSERTION`으로 반환하므로 재사용 시 파일/notice를 기준으로 재확인한다.
-- AGPL-3.0: Claude Squad, Mux.
+- AGPL 계열: Claude Squad, Mux, Paseo. Paseo의 root LICENSE는 third-party component의 원 라이선스를 보존하고 나머지를 AGPLv3로 두며 일부 package metadata는 `AGPL-3.0-or-later`이므로 파일별 확인이 필요하다.
 - 분석 제외: NTM의 추가 rider는 OpenAI/Anthropic 및 그 관계자의 사용·분석을 금지하므로 어떤 설계 근거나 재사용 대상에도 포함하지 않는다.
 
 아키텍처 아이디어와 공개 프로토콜 비교는 가능하지만 실제 코드를 복사할 때는 각 파일의 라이선스·notice·파생 저작물 의무를 검토해야 한다. 특히 Claude Squad의 코드를 신규 도구에 직접 포함하는 것은 배포 모델에 따라 AGPL 의무가 발생할 수 있으므로 기본 전략은 clean-room 재구현으로 둔다. Archived인 Overstory는 유지보수 위험 때문에 fork 기반 제품화보다 아이디어 참조가 적합하다.

@@ -15,7 +15,7 @@ verification_ceiling: V2
 
 # Windows-first 맞춤형 에이전트 플랫폼 청사진
 
-[지식 베이스 홈](./index.md) · [33개 도구 카탈로그](./tools/catalog.md) · [스키마와 작성 규칙](./knowledge-graph-schema.md)
+[지식 베이스 홈](./index.md) · [34개 도구 카탈로그](./tools/catalog.md) · [스키마와 작성 규칙](./knowledge-graph-schema.md)
 
 이 문서는 [상세 오케스트레이션 기획](../planning/FAST_MULTI_AGENT_ORCHESTRATION_PLAN.md)과 [요구사항 명세](../planning/AI_AGENT_DEVELOPMENT_ENVIRONMENT_REQUIREMENTS.md)의 탐색용 의사결정 뷰다. 구현 완료 보고가 아니며 현재 상태는 설계·정적 근거 `V2`다.
 

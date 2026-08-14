@@ -31,7 +31,7 @@ upstream의 현재 HEAD가 아니라 이 저장소가 검토한 SHA를 재현하
 
 - [AI 에이전트 지식 베이스 홈](./knowledge-base/index.md)
 - [AI 코딩 에이전트 도구·서비스 landscape](./planning/AI_CODING_AGENT_TOOLS_AND_SERVICES_LANDSCAPE.md)
-- [33개 저장소 코드·GitHub 분석](./planning/REPOSITORY_GITHUB_ANALYSIS.md)
+- [34개 저장소 코드·GitHub 분석](./planning/REPOSITORY_GITHUB_ANALYSIS.md)
 - [빠른 멀티 에이전트 실행·오케스트레이션 기획](./planning/FAST_MULTI_AGENT_ORCHESTRATION_PLAN.md)
 - [AI 에이전트 기반 개발 환경 요구사항](./planning/AI_AGENT_DEVELOPMENT_ENVIRONMENT_REQUIREMENTS.md)
 - [5개 공식 에이전트 저장소 추가 작업 목록](./planning/ADD_FIVE_AGENT_REPOSITORIES_CHECKLIST.md)
