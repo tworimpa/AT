@@ -4,6 +4,7 @@ AI 코딩 에이전트 개발 환경, 멀티 에이전트 오케스트레이션,
 
 ## 구성
 
+- [`knowledge-base/`](./knowledge-base/): Obsidian 탐색용 지식 베이스, 도구 카탈로그, 플랫폼 청사진, provenance·검증 규칙
 - [`planning/`](./planning/): 도구·서비스 landscape, 소스/GitHub 분석, 오케스트레이션 기획, 신규 도구 요구사항
 - [`multi-agent-tools/README.md`](./multi-agent-tools/README.md): 분석 대상 분류, 라이선스, 정확한 clone SHA
 - `multi-agent-tools/<project>/`: 각 공식 upstream을 가리키는 Git submodule
@@ -28,6 +29,7 @@ upstream의 현재 HEAD가 아니라 이 저장소가 검토한 SHA를 재현하
 
 ## 주요 문서
 
+- [AI 에이전트 지식 베이스 홈](./knowledge-base/index.md)
 - [AI 코딩 에이전트 도구·서비스 landscape](./planning/AI_CODING_AGENT_TOOLS_AND_SERVICES_LANDSCAPE.md)
 - [33개 저장소 코드·GitHub 분석](./planning/REPOSITORY_GITHUB_ANALYSIS.md)
 - [빠른 멀티 에이전트 실행·오케스트레이션 기획](./planning/FAST_MULTI_AGENT_ORCHESTRATION_PLAN.md)
