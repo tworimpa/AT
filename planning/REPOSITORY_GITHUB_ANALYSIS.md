@@ -4,7 +4,7 @@
 
 ## 1. 분석 범위와 증거 경계
 
-이 문서는 `multi-agent-tools/`에 shallow clone한 28개 분석 대상 저장소의 코드, 공식 문서, 테스트 구조와 GitHub 공개 메타데이터를 비교한다. 로컬 분석은 [클론 기준점](../multi-agent-tools/README.md#정확한-클론-기준점)에 기록된 SHA를 기준으로 했다. 대형 gh-aw는 blobless partial clone+sparse checkout을 사용하되 전체 Git tree로 파일 지표를 계산했다. 별도로 clone된 NTM은 LICENSE rider 확인 즉시 분석에서 제외했다.
+이 문서는 `multi-agent-tools/`에 shallow clone한 33개 분석 대상 저장소의 코드, 공식 문서, 테스트 구조와 GitHub 공개 메타데이터를 비교한다. 로컬 분석은 [클론 기준점](../multi-agent-tools/README.md#정확한-클론-기준점)에 기록된 SHA를 기준으로 했다. 대형 gh-aw는 blobless partial clone+sparse checkout을 사용하되 전체 Git tree로 파일 지표를 계산했다. 별도로 clone된 NTM은 LICENSE rider 확인 즉시 분석에서 제외했다.
 
 - 확인함: 저장소 구조, 상태 모델, worktree/세션/메시징/스케줄링/복구/병합 코드, 라이선스, GitHub 활동·릴리스·이슈/PR 개수.
 - 확인하지 않음: 모든 저장소의 의존성 설치, 전체 빌드, 실 에이전트 E2E, 실제 Windows 성능, 보안 침투 시험.
@@ -14,7 +14,7 @@
 
 ## 2. 핵심 결론
 
-현재 도구들은 크게 일곱 부류로 나뉜다.
+현재 도구들은 크게 열 부류로 나뉜다.
 
 1. **빠른 세션 관제형**: Orca, MulmoTerminal, Claude Squad, Agent Deck. 여러 에이전트를 띄우고 worktree·터미널·diff를 사람이 빠르게 관제하는 데 강하다.
 2. **자동 오케스트레이션형**: agtx, Agetor, Overstory, Warren. 작업 상태, 의존성, 감시, 승인, 복구, 병합 또는 샌드박스를 자동화하는 데 강하다.
@@ -23,6 +23,9 @@
 5. **backend federation·protocol형**: OpenHands/Agent Canvas와 Software Agent SDK. 여러 local·remote·cloud Agent Server와 ACP agent를 한 control surface에서 선택하고 protocol·tool·runtime topology를 협상하며, 서버는 conversation/workspace lifecycle을 제공한다.
 6. **상호운용·compatibility형**: Agent Client Protocol, acpx, AgentAPI. 정식 wire protocol과 session backend를 우선하고, 정식 protocol이 없는 CLI는 PTY heuristic bridge로 보완한다.
 7. **event-triggered agent automation형**: GitHub Agentic Workflows. 자연어 source를 검증된 Actions manifest로 compile하고 read-only agent stage와 scoped write stage를 분리한다.
+8. **coding-agent runtime형**: OpenAI Codex, Cline. CLI·TUI·app-server 또는 IDE·CLI·hub처럼 실행 surface별 capability와 승인·sandbox 경계가 다르다.
+9. **personal assistant runtime·gateway형**: Hermes Agent, OpenClaw. channel, memory, cron, companion node 때문에 일반 coding workspace보다 넓은 identity·credential trust domain을 가진다.
+10. **plugin-composed agent harness형**: DeepSeek Harness. Cordis plugin tree와 durable session event 위에 ACP, subagent, local/E2B provider를 capability seam으로 조합한다.
 
 Buzz와 squad는 이 둘을 연결하는 **통신·작업 프로토콜 계층**에 가깝다. 신규 도구의 기회는 관제형의 짧은 시작 시간과 오케스트레이션형의 구조화된 완료 증명을 하나의 점진적 실행 모델로 통합하는 것이다.
 
@@ -58,6 +61,16 @@ Buzz와 squad는 이 둘을 연결하는 **통신·작업 프로토콜 계층**�
 | GitHub Agentic Workflows | YAML frontmatter+Markdown source를 strict schema, expression/template-injection, permission, action-pin, firewall validation 뒤 `.lock.yml` Actions workflow로 compile한다. agent job은 최소 read 권한으로 artifact만 만들고 별도 threat detection과 scope별 safe-output job이 외부 write를 담당한다. | Public Preview이고 GitHub Actions runtime·GitHub forge에 결합된다. AI threat detection은 deterministic sanitizer/policy의 대체가 아니며 sandbox도 runner host, API proxy, MCP gateway 신뢰를 없애지 않는다. | [architecture](https://github.com/github/gh-aw/blob/ef14fabf6dc17e6f5862dd5de7c905ea0e9299f7/docs/src/content/docs/introduction/architecture.mdx), [compiler](https://github.com/github/gh-aw/blob/ef14fabf6dc17e6f5862dd5de7c905ea0e9299f7/pkg/workflow/compiler.go), [safe-output job](https://github.com/github/gh-aw/blob/ef14fabf6dc17e6f5862dd5de7c905ea0e9299f7/pkg/workflow/compiler_safe_outputs_job.go), [공식 GitHub](https://github.com/github/gh-aw) |
 | Container Use | 환경별 branch/worktree와 Dagger container를 결합하고 setup-before-source cache, install-after-source, service binding, command/file 변경 export·commit, Git notes 상태·실행 로그를 MCP/CLI로 제공한다. 실패 command 뒤에도 container state를 보존해 재현·디버깅할 수 있다. | Dagger와 privileged nesting이 필요한 local container 경계다. 현재 source에는 secret reference 문자열을 project JSON과 Git notes state에 직렬화하고 `show/list`에서 값까지 출력하는 경로가 있어 문서의 masking 주장과 불일치한다. secret subsystem은 채택하면 안 된다. | [environment lifecycle](https://github.com/dagger/container-use/blob/2e43e625e95216b719ec9338f4034fd3a0be2734/environment/environment.go), [config serialization](https://github.com/dagger/container-use/blob/2e43e625e95216b719ec9338f4034fd3a0be2734/environment/config.go), [Git notes state](https://github.com/dagger/container-use/blob/2e43e625e95216b719ec9338f4034fd3a0be2734/repository/git.go), [공식 GitHub](https://github.com/dagger/container-use) |
 | Cloudflare Sandbox SDK | Worker→Durable Object→RPC WebSocket→container service를 primary control path로 두고 HTTP client는 compatibility path로 유지한다. command/file/process/session, streaming, sleep-after, R2 backup, tokenized preview를 제공하며 persisted runtime identity로 restart 뒤 stale stream·preview activation을 차단한다. | session은 cwd/env context이지 별도 격리 sandbox가 아니다. local 개발은 Docker, production isolation·capacity·retention은 Cloudflare platform 경계이며 preview는 custom wildcard domain과 restart 후 재활성화가 필요하다. | [architecture](https://github.com/cloudflare/sandbox-sdk/blob/2dd1476e32769656da97d5a8daf75e2f92b57e71/.agents/skills/architecture/SKILL.md), [runtime identity](https://github.com/cloudflare/sandbox-sdk/blob/2dd1476e32769656da97d5a8daf75e2f92b57e71/packages/sandbox/src/current-runtime-identity.ts), [sandbox lifecycle](https://github.com/cloudflare/sandbox-sdk/blob/2dd1476e32769656da97d5a8daf75e2f92b57e71/packages/sandbox/src/sandbox.ts), [공식 GitHub](https://github.com/cloudflare/sandbox-sdk) |
+
+### 3.1 신규 5개 저장소
+
+| 도구 | 코드에서 확인한 강점 | 한계 또는 신규 도구가 보완할 점 | 근거 |
+|---|---|---|---|
+| DeepSeek Harness | Cordis plugin lifecycle, durable session/event, ACP와 Codex·Claude Code subagent, local/E2B sandbox provider를 교체 가능한 seam으로 구성한다. | Windows ACL은 partial enforcement이며 provider별 capability를 동일시하면 안 된다. install/build/E2E는 미검증이다. | [README](https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/README.md), [session](https://github.com/deepseek-ai/deepseek-harness/tree/47f943859bef60e4160492346772ded9b24f765a/packages/session), [sandbox](https://github.com/deepseek-ai/deepseek-harness/tree/47f943859bef60e4160492346772ded9b24f765a/packages/sandbox) |
+| Hermes Agent | persistent memory와 learned skills, cron·isolated subagent, ACP adapter와 multi-channel gateway, local/remote terminal backend를 한 personal agent runtime에 연결한다. | optional skill에는 별도 라이선스가 있어 root MIT를 모든 content에 확장하면 안 된다. channel sender와 terminal credential audience를 분리해야 하며 실행은 미검증이다. | [README](https://github.com/NousResearch/hermes-agent/blob/1b1975781f372e4d7fe4f448eab86cea5441f2e7/README.md), [ACP adapter](https://github.com/NousResearch/hermes-agent/tree/1b1975781f372e4d7fe4f448eab86cea5441f2e7/acp_adapter), [providers](https://github.com/NousResearch/hermes-agent/tree/1b1975781f372e4d7fe4f448eab86cea5441f2e7/providers) |
+| OpenClaw | gateway가 channel·session·tool·event를 통합하고 plugin/skill과 companion node, ACP runtime을 연결한다. | host tool과 개인 channel까지 닿아 coding workspace보다 trust domain이 넓다. sandbox와 host 실행을 혼동하지 않아야 하며 build/E2E는 미검증이다. | [README](https://github.com/openclaw/openclaw/blob/f49eaf86399b91a1a7273ee2405bb298d64e9387/README.md), [ACP core](https://github.com/openclaw/openclaw/tree/f49eaf86399b91a1a7273ee2405bb298d64e9387/packages/acp-core), [gateway client](https://github.com/openclaw/openclaw/tree/f49eaf86399b91a1a7273ee2405bb298d64e9387/packages/gateway-client) |
+| OpenAI Codex | CLI·TUI·app-server, structured JSON-RPC, thread resume·approval, OS별 sandbox/network policy와 MCP를 구현한다. | 각 surface가 같은 capability를 제공한다고 가정하면 안 된다. Windows sandbox 코드는 확인했지만 build·Windows 실행·agent E2E는 미검증이다. | [README](https://github.com/openai/codex/blob/1c4f42863c1f84eb5175a1a0cfffe84641a63df3/README.md), [app-server protocol](https://github.com/openai/codex/tree/1c4f42863c1f84eb5175a1a0cfffe84641a63df3/codex-rs/app-server-protocol), [sandbox](https://github.com/openai/codex/blob/1c4f42863c1f84eb5175a1a0cfffe84641a63df3/docs/sandbox.md) |
+| Cline | VS Code·JetBrains·headless CLI와 hub/provider abstraction, MCP approval, checkpoint·subagent·memory/skill/plugin surface를 갖춘다. | IDE extension, CLI와 hub daemon은 owner·credential·lifecycle이 달라 별도 capability profile이 필요하다. 실제 설치와 Windows/agent E2E는 미검증이다. | [README](https://github.com/cline/cline/blob/3e0aac53a2f5f408a89a957d75430f6ec4084497/README.md), [ACP](https://github.com/cline/cline/blob/3e0aac53a2f5f408a89a957d75430f6ec4084497/docs/usage/acp.mdx), [checkpoints](https://github.com/cline/cline/blob/3e0aac53a2f5f408a89a957d75430f6ec4084497/docs/core-workflows/checkpoints.mdx) |
 
 ## 4. GitHub 활동 스냅샷
 
@@ -274,8 +287,8 @@ RPC 호출이 stream handle을 반환한 뒤에도 peer는 계속 출력할 수 
 
 ## 7. 재사용·라이선스 판단
 
-- MIT: Orca, squad, MulmoTerminal, Agent Deck, Agetor, Overstory, Warren, Gas Town, Taskplane, Beads, OpenHands/Agent Canvas, OpenHands Software Agent SDK, acpx, AgentAPI, GitHub Agentic Workflows.
-- Apache-2.0: Buzz, agtx, Emdash, Agent Orchestrator, sudocode, E2B, E2B Infra, Agent Client Protocol, Vercel Sandbox, Container Use, Cloudflare Sandbox SDK의 LICENSE 파일. Cloudflare 저장소 API는 SPDX를 `NOASSERTION`으로 반환하므로 재사용 시 파일/notice를 기준으로 재확인한다.
+- MIT: Orca, squad, MulmoTerminal, Agent Deck, Agetor, Overstory, Warren, Gas Town, Taskplane, Beads, OpenHands/Agent Canvas, OpenHands Software Agent SDK, acpx, AgentAPI, GitHub Agentic Workflows, DeepSeek Harness, Hermes Agent, OpenClaw. Hermes의 optional skills 등 하위 content에는 별도 라이선스가 있을 수 있다.
+- Apache-2.0: Buzz, agtx, Emdash, Agent Orchestrator, sudocode, E2B, E2B Infra, Agent Client Protocol, Vercel Sandbox, Container Use, Cloudflare Sandbox SDK의 LICENSE 파일, OpenAI Codex, Cline. Cloudflare 저장소 API는 SPDX를 `NOASSERTION`으로 반환하므로 재사용 시 파일/notice를 기준으로 재확인한다.
 - AGPL-3.0: Claude Squad, Mux.
 - 분석 제외: NTM의 추가 rider는 OpenAI/Anthropic 및 그 관계자의 사용·분석을 금지하므로 어떤 설계 근거나 재사용 대상에도 포함하지 않는다.
 

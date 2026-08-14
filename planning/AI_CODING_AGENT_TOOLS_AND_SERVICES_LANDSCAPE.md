@@ -24,9 +24,10 @@ AI 코딩 개발 환경을 빠르게 개선하려면 하나의 거대한 에이�
 
 ## 2. 증거 경계
 
-- 조사 당시 로컬 `multi-agent-tools/` 아래 29개 Git 디렉터리가 있었으며, NTM을 제외한 28개 저장소를 분석하고 공개 부모 저장소의 submodule로 등록했다.
+- 조사 당시 NTM을 제외한 33개 저장소를 분석하고 공개 부모 저장소의 submodule로 등록했다.
 - 기존 10개 저장소에 Emdash, Gas Town, Taskplane, Agent Orchestrator, sudocode, Mux, Beads, E2B SDK, E2B Infra, OpenHands/Agent Canvas, OpenHands Software Agent SDK, Agent Client Protocol, acpx, AgentAPI, Vercel Sandbox, GitHub Agentic Workflows, Container Use, Cloudflare Sandbox SDK를 추가했다.
 - 모든 분석 대상은 `--depth 1` shallow clone이며 checkout은 clean 상태다.
+- 신규 5개는 DeepSeek Harness(plugin-composed harness), Hermes Agent·OpenClaw(personal assistant runtime/gateway), OpenAI Codex·Cline(coding-agent runtime) 계층에 둔다. 근거는 고정 SHA의 source와 문서이며 install, build, Windows 실행, remote provider, 실 agent E2E는 수행하지 않았다.
 - 의존성 설치, 전체 빌드, 실제 에이전트 실행, E2E, 서비스 가입이나 유료 기능 검증은 하지 않았다.
 - GitHub 수치와 서비스 기능은 조사일의 공개 정보 스냅샷이다. 요금, 한도, 지원 플랫폼은 별도 구매 결정 전에 다시 확인해야 한다.
 - `ntm`은 clone 후 LICENSE의 추가 rider가 OpenAI/Anthropic 및 그 관계자의 사용·분석을 금지함을 발견했다. 즉시 분석에서 제외했으며 삭제는 명시적 승인 전까지 보류한다.

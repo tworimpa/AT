@@ -4,7 +4,7 @@
 
 기준일: 2026-08-14
 
-근거: [28개 저장소 코드·GitHub 분석](./REPOSITORY_GITHUB_ANALYSIS.md), [도구·서비스 landscape](./AI_CODING_AGENT_TOOLS_AND_SERVICES_LANDSCAPE.md)
+근거: [33개 저장소 코드·GitHub 분석](./REPOSITORY_GITHUB_ANALYSIS.md), [도구·서비스 landscape](./AI_CODING_AGENT_TOOLS_AND_SERVICES_LANDSCAPE.md)
 
 ## 1. 목표
 
@@ -486,6 +486,12 @@ interrupt inbox는 `질문`, `승인`, `실패`, `merge 준비`만 모은다. �
 - 사람 interrupt 수/작업
 - stale/false waiting/false done 비율
 - provider/model별 성공률·비용·재시도율
+
+### 10.1 Assistant Gateway Connector와 surface profile
+
+- Codex의 exec·TUI·app-server와 Cline의 IDE·CLI·hub는 각각 별도 `capability_profile`로 등록한다. 제품 이름이나 binary 존재만으로 resume, approval, tool, sandbox capability를 추정하지 않는다.
+- Hermes/OpenClaw의 channel request는 `AssistantGatewayConnector`가 durable task-intake event로 변환한다. `sender_identity`, `workspace`, `credential_audience`, `sandbox_profile`은 하나의 원자적 binding으로 저장한다.
+- binding이 누락·만료·불일치하면 fallback 권한으로 실행하지 않고 fail-closed한다. gateway의 personal memory·cron·companion node trust domain은 coding workspace와 별도 policy domain으로 유지한다.
 
 ## 11. 개발 단계
 

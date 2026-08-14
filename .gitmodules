@@ -82,3 +82,18 @@
 [submodule "multi-agent-tools/warren"]
 	path = multi-agent-tools/warren
 	url = https://github.com/jayminwest/warren.git
+[submodule "multi-agent-tools/deepseek-harness"]
+	path = multi-agent-tools/deepseek-harness
+	url = https://github.com/deepseek-ai/deepseek-harness.git
+[submodule "multi-agent-tools/hermes-agent"]
+	path = multi-agent-tools/hermes-agent
+	url = https://github.com/NousResearch/hermes-agent.git
+[submodule "multi-agent-tools/openclaw"]
+	path = multi-agent-tools/openclaw
+	url = https://github.com/openclaw/openclaw.git
+[submodule "multi-agent-tools/codex"]
+	path = multi-agent-tools/codex
+	url = https://github.com/openai/codex.git
+[submodule "multi-agent-tools/cline"]
+	path = multi-agent-tools/cline
+	url = https://github.com/cline/cline.git

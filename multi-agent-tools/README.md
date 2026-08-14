@@ -2,11 +2,11 @@
 
 조사 기준일: 2026-08-14 (Asia/Seoul)
 
-이 디렉터리는 Orca/Buzz와 두 도구에 인접한 **멀티 에이전트 코딩 운영 도구, 상호운용 protocol, CI automation 및 원격 sandbox 구현**을 비교하기 위한 소스 스냅샷이다. 조사 당시 로컬 workspace의 29개 Git 디렉터리 중 license rider로 제외한 NTM을 뺀 28개를 분석했고, 공개 부모 저장소에는 이 28개만 submodule로 등록했다. 모두 `--depth 1`로 클론했으며, 대형 `gh-aw`는 추가로 partial clone+sparse checkout을 사용했다. 의존성 설치·빌드·실행·사용자 설정 변경은 수행하지 않았다.
+이 디렉터리는 Orca/Buzz와 두 도구에 인접한 **멀티 에이전트 코딩 운영 도구, 상호운용 protocol, CI automation 및 원격 sandbox 구현**을 비교하기 위한 소스 스냅샷이다. 조사 당시 license rider로 제외한 NTM을 뺀 33개를 분석했고, 공개 부모 저장소에는 이 33개만 submodule로 등록했다. 모두 shallow clone으로 확보했으며, 대형 `gh-aw`는 추가로 partial clone+sparse checkout을 사용했다. 의존성 설치·빌드·실행·사용자 설정 변경은 수행하지 않았다.
 
 ## 분석 산출물
 
-- [28개 저장소 코드·GitHub 분석](../planning/REPOSITORY_GITHUB_ANALYSIS.md)
+- [33개 저장소 코드·GitHub 분석](../planning/REPOSITORY_GITHUB_ANALYSIS.md)
 - [AI 코딩 에이전트 도구·서비스 landscape](../planning/AI_CODING_AGENT_TOOLS_AND_SERVICES_LANDSCAPE.md)
 - [빠른 멀티 에이전트 실행·오케스트레이션 기획](../planning/FAST_MULTI_AGENT_ORCHESTRATION_PLAN.md)
 - [AI 에이전트 기반 개발 환경 요구사항](../planning/AI_AGENT_DEVELOPMENT_ENVIRONMENT_REQUIREMENTS.md)
@@ -43,6 +43,11 @@
 | [GitHub Agentic Workflows](./gh-aw/) | Markdown→GitHub Actions agent workflow compiler | Copilot·Claude·Codex·Gemini 등 | compile-time validation, read-only agent job, sandbox/firewall, buffered safe outputs, threat-detection/write job 분리 | CLI 설치는 Windows 지원; 실제 workflow는 Actions runner에서 실행 | MIT | event/schedule 기반 Continuous AI와 privilege-separated external write 기준점 |
 | [Container Use](./container-use/) | MCP/CLI 기반 local container workspace | MCP 호환 agent | 환경별 branch/worktree, Dagger container, Git notes 상태·실행 로그, setup/install cache 단계, service binding | Dagger container runtime이 필요하며 Windows native process 격리가 아님 | Apache-2.0 | local container executor와 재현 가능한 병렬 workspace의 기준점; 현재 secret 경계는 그대로 채택하지 않음 |
 | [Cloudflare Sandbox SDK](./cloudflare-sandbox-sdk/) | hosted container SDK + runtime control plane | agent 중립, OpenAI Agents/Claude/OpenCode 예제 | Worker→Durable Object→RPC WebSocket→container service, session, runtime identity, sleep/backup, tokenized preview | local 개발은 Docker, 실제 격리·수명주기는 Cloudflare platform 경계 | Apache-2.0 파일(Forge API 미분류) | 세 번째 remote executor 후보와 runtime-generation fencing 기준점 |
+| [DeepSeek Harness](./deepseek-harness/) | plugin-composed agent harness/runtime | Codex·Claude Code subagent | Cordis plugin tree, durable session/event, ACP, local/E2B sandbox provider | Windows ACL backend가 있으나 이번 조사에서 실행 미검증 | MIT; third-party notices 포함 | capability seam과 plugin lifecycle 기준점 |
+| [Hermes Agent](./hermes-agent/) | self-improving personal agent runtime | ACP adapter | persistent memory·skills·cron·isolated subagent, multi-channel gateway, local/remote terminal backend | Windows 설치·backend 실행은 미검증 | MIT; optional skill별 별도 라이선스 존재 | 장기 상태와 채널 intake provenance 기준점 |
+| [OpenClaw](./openclaw/) | single-operator assistant gateway/control plane | ACP core 포함 | gateway session/tool/event/channel, plugin·skill, companion node, host/sandbox 경계 | Windows 지원 범위는 정적 확인만 수행 | MIT; component notice 존재 | assistant gateway trust-domain 기준점 |
+| [OpenAI Codex](./codex/) | local coding-agent runtime | 자체 runtime | CLI·TUI·app-server JSON-RPC, resume·approval, OS sandbox·network policy, MCP | Windows sandbox 구현이 있으나 build/E2E 미검증 | Apache-2.0 + NOTICE | surface별 capability profile 기준점 |
+| [Cline](./cline/) | IDE/CLI coding agent | 자체 runtime | VS Code·JetBrains·headless CLI, hub/provider abstraction, MCP approval, checkpoint·subagent | Windows 실제 실행은 미검증 | Apache-2.0 | IDE/CLI/hub surface 분리 기준점 |
 
 ## Windows에서 먼저 볼 순서
 
@@ -65,6 +70,9 @@
 17. `gh-aw`: Markdown source→immutable lock workflow compiler, read-only agent→threat detection→safe write job의 권한 분리와 GitHub Actions trigger를 확인한다.
 18. `container-use`: branch/worktree와 Dagger container를 결합한 병렬 환경, Git notes 기반 상태·로그, cache 단계와 privileged nesting/secret 경계를 확인한다.
 19. `cloudflare-sandbox-sdk`: Durable Object가 container lifecycle과 session을 조정하고 runtime identity로 stale stream/preview를 fencing하는 hosted executor 구조를 확인한다.
+20. `codex`와 `cline`: CLI·TUI·app-server 또는 IDE·CLI·hub를 각각 별도 capability surface로 비교한다.
+21. `deepseek-harness`: Cordis plugin tree, ACP와 local/E2B provider의 capability seam을 확인한다.
+22. `hermes-agent`와 `openclaw`: coding workspace보다 넓은 channel·memory·credential trust domain을 확인한다.
 
 ## 정확한 클론 기준점
 
@@ -98,6 +106,11 @@
 | `github/gh-aw` | `main` | `ef14fabf6dc17e6f5862dd5de7c905ea0e9299f7` |
 | `dagger/container-use` | `main` | `2e43e625e95216b719ec9338f4034fd3a0be2734` |
 | `cloudflare/sandbox-sdk` | `main` | `2dd1476e32769656da97d5a8daf75e2f92b57e71` |
+| `deepseek-ai/deepseek-harness` | `master` | `47f943859bef60e4160492346772ded9b24f765a` |
+| `NousResearch/hermes-agent` | `main` | `1b1975781f372e4d7fe4f448eab86cea5441f2e7` |
+| `openclaw/openclaw` | `main` | `f49eaf86399b91a1a7273ee2405bb298d64e9387` |
+| `openai/codex` | `main` | `1c4f42863c1f84eb5175a1a0cfffe84641a63df3` |
+| `cline/cline` | `main` | `3e0aac53a2f5f408a89a957d75430f6ec4084497` |
 
 각 저장소는 독립된 Git 저장소다. 최신 이력 전체가 필요할 때만 해당 디렉터리에서 `git fetch --unshallow`을 실행한다.
 

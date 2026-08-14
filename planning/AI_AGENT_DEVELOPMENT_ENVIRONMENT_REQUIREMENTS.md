@@ -814,6 +814,13 @@ Cloudflare형 fake adapter에서 stream과 background service가 실행 중일 �
 - 학습 기반 duration/model prediction
 - 조직 정책·SSO·다중 tenant
 
+### AC-36 surface capability와 gateway provenance
+
+- 같은 agent 제품의 서로 다른 실행 surface를 등록하면 각각 protocol version과 capability snapshot이 독립적으로 저장되고 누락 capability는 unsupported로 처리된다.
+- gateway channel request는 durable intake event에 channel, sender identity와 provenance를 보존하며 memory, skill, cron 또는 companion node에서 파생됐는지도 구분된다.
+- scheduler는 sender identity, workspace, credential audience, sandbox profile의 원자적 binding이 완전하고 유효할 때만 실행한다. 누락·만료·불일치는 fail-closed한다.
+- assistant gateway와 coding workspace는 별도 trust domain이며 credential, filesystem, network lease가 암묵적으로 상속되지 않는다.
+
 ## 10. 추적성
 
 | 요구 영역 | 참고한 구현 |
