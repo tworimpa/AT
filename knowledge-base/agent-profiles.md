@@ -29,10 +29,24 @@ Profile은 모델 성능·가격·한도를 보증하지 않는다. 실행 결�
 |---|---|
 | `model_tier` | `fast`, `balanced`, `deep`, `strict` 같은 공급자 중립 요구 등급 |
 | `model_slug` | dispatcher가 해당 실행 환경에서 지원 목록을 확인한 뒤 고정하는 실제 slug. 확인 전에는 `unresolved` |
-| `effort` | `low`, `medium`, `high`, `xhigh` 중 실행기가 지원하는 값. 실제 값과 요청값을 모두 기록 |
-| 조건부 예시 | Codex 실행기가 현재 `gpt-5.6-terra`와 `gpt-5.6-sol`을 명시적으로 광고하는 환경에서만 `fast/balanced → gpt-5.6-terra`, `deep/strict → gpt-5.6-sol` 후보로 해석할 수 있다. 다른 환경에는 이 slug를 이식하지 않고 그 실행기가 광고한 동급 후보를 사용한다. 이는 효능·가격 주장이 아니라 environment-scoped resolver 예시다. |
+| `effort` | `low`, `medium`, `high`, `xhigh`, `max` 중 실행기가 지원하는 값. 실제 값과 요청값을 모두 기록 |
+| 환경 조건 | 아래 Codex 매핑은 해당 실행 환경이 모델과 effort를 지원할 때만 사용한다. 다른 환경에는 slug를 이식하지 않고 그 실행기가 광고한 동급 후보를 사용한다. |
 
 요청 등급을 지원하지 않으면 동일 권한 안의 가장 가까운 지원 모델을 선택하고 제한을 기록할 수 있다. 더 넓은 권한, 비용 또는 외부 동작이 생기는 대체는 사람 승인 없이는 진행하지 않는다.
+
+## Codex 기본 추천 매핑
+
+아래 값은 [OpenAI 공식 모델 카탈로그](https://developers.openai.com/api/docs/models)와 [GPT-5.6 모델 가이드](https://developers.openai.com/api/docs/guides/latest-model)를 2026-08-14에 확인해 정한 **기본 추천값**이다. 모델 효능·가격·가용성을 고정 보장하지 않는다. 실행 환경에서 실제로 지원하는 모델과 effort만 선택하며, 작업 복잡도·필요한 도구·검증 강도에 따라 이 기본 Profile을 한 단계 올리거나 내린 뒤 그 이유와 실제 선택값을 실행 기록에 남긴다.
+
+| Profile ID | Codex 기본 추천 모델 | 조건부 model slug | 기본 effort |
+|---|---|---|---|
+| `research-fast` | GPT-5.6 Luna | `gpt-5.6-luna` | `low` |
+| `planner-balanced` | GPT-5.6 Terra | `gpt-5.6-terra` | `medium` |
+| `implement-deep` | GPT-5.6 Sol | `gpt-5.6-sol` | `high` |
+| `verify-strict` | GPT-5.6 Sol | `gpt-5.6-sol` | `xhigh`; 가장 어려운 quality-first 검증에서만 `max` 비교 |
+| `review-fast` | GPT-5.6 Terra 또는 GPT-5.6 Luna | `gpt-5.6-terra` 또는 `gpt-5.6-luna` | `low` |
+
+한 단계 조정은 권한이나 성공 기준을 암묵적으로 바꾸지 않는다. 단순·반복·지연 민감 작업은 한 단계 낮추고, 복잡한 추론·도구 연쇄·독립적 반증이 필요한 작업은 한 단계 높인다. `max`는 항상 최선이라는 뜻이 아니며, 대표 작업에서 `xhigh`와 품질·latency·cost를 비교할 수 있을 때만 선택한다.
 
 ## 공통 실행 기록
 
@@ -47,7 +61,7 @@ model:
   slug: <actual-slug-or-unknown>
   version: <actual-version-or-unknown>
 effort:
-  requested: <low|medium|high|xhigh>
+  requested: <low|medium|high|xhigh|max>
   actual: <value-or-unknown>
 scope:
   base_sha: <sha-or-null>
@@ -71,9 +85,9 @@ limitations: []
 |---|---|---|---|---|---|---|---|
 | `research-fast` | fast | low | Researcher, Triager | upstream 식별, 문서·metadata 조사, 빠른 triage | read-only, network read | 20분 / 1회 | 출처 URL·관찰 시각; fixed SHA를 읽었을 때만 `V2` |
 | `planner-balanced` | balanced | medium | Planner, Coordinator | 범위·DAG·acceptance·risk 계획 | read-only; 요청된 planning 문서만 write | 45분 / 1회 | 가정·의존성·승인 gate·검증 계획 |
-| `implement-deep` | deep | high, 필요 시 xhigh | Worker, Documenter | 코드·문서 구현과 로컬 검증 | workspace write/test; 외부 write 금지 | 120분 / 2회 | diff, 명령/exit, artifact, base/head; 실행한 단계까지만 `V3+` |
-| `verify-strict` | strict | high 또는 xhigh | Verifier, Tester | 독립 검증, failure boundary, release gate | read-only + test execution | 90분 / 1회 | 재현 명령, 환경, pass/fail/unknown, 반증과 stale 여부 |
-| `review-fast` | fast 또는 balanced | low 또는 medium | Reviewer, Security Reviewer | exact-SHA diff/PR 정적 review | read-only; approve/merge 금지 | 30분 / 1회 | base/head, finding locator, severity/confidence, 미검토 범위 |
+| `implement-deep` | deep | high | Worker, Documenter | 코드·문서 구현과 로컬 검증 | workspace write/test; 외부 write 금지 | 120분 / 2회 | diff, 명령/exit, artifact, base/head; 실행한 단계까지만 `V3+` |
+| `verify-strict` | strict | xhigh, 필요 시 max | Verifier, Tester | 독립 검증, failure boundary, release gate | read-only + test execution | 90분 / 1회 | 재현 명령, 환경, pass/fail/unknown, 반증과 stale 여부 |
+| `review-fast` | fast 또는 balanced | low | Reviewer, Security Reviewer | exact-SHA diff/PR 정적 review | read-only; approve/merge 금지 | 30분 / 1회 | base/head, finding locator, severity/confidence, 미검토 범위 |
 
 timebox는 기본값이며 사용자 계약이나 runtime 한도가 우선한다. 시간이 끝났다는 이유만으로 성공으로 처리하지 않고 안전한 중간 상태와 남은 작업을 보고한다.
 
