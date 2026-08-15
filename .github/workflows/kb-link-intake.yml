@@ -4,6 +4,7 @@ on:
   issues:
     types:
       - opened
+      - reopened
   workflow_dispatch:
     inputs:
       url:
@@ -51,6 +52,8 @@ jobs:
       - name: Analyze public source with Gemini
         id: gemini
         uses: google-github-actions/run-gemini-cli@f77273f4c914e4bf38440cf36a0369cb64a37489 # v0.1.22
+        env:
+          GEMINI_CLI_TRUST_WORKSPACE: 'true'
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_cli_version: '0.53.0'
