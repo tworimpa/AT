@@ -88,3 +88,22 @@ Gemini `generateContent` REST 요청을 정확히 한 번만 구성하도록 전
 - Issue #3 run `31893848795`는 사설 IP URL을 Gemini 호출 전에 거부해 예상대로 exit `1`이었다.
 - 관찰된 결함은 상대 출력 경로를 `REPO_ROOT` 기준으로 정규화하고 동일 상대경로 fixture를
   추가해 수정한다. 수정 후 실제 정상 분기 E2E 결과는 후속 run에서 별도로 확인한다.
+
+## 지식 후보 산출물 전환
+
+PR #4 재검토에서 자동화가 `execution-record` 하나만 만들고 실제 source of truth인
+`knowledge-base/tools/<tool>.md`와 탐색 index를 갱신하지 않아, 실행 추적 외에는 재사용 가능한
+지식을 축적하지 못하는 결함을 확인했다.
+
+- `add` 산출물을 template v3 형태의 `tool-profile`로 변경한다.
+- profile과 함께 `knowledge-base/index.md`, `tools/catalog.md`, `tools/coverage.md`에 검토 후보
+  연결을 추가한다.
+- 모델이 제안한 GitHub URL은 공개 repository, default branch full HEAD SHA, license metadata를
+  GitHub API로 재확인한다. repository URL 또는 repository homepage가 제출 원문에 연결되지
+  않으면 모델 판단을 `skip`으로 강등한다.
+- 자동 profile의 상한은 `I1/V1/windows:P0/linux:P0`로 제한한다. full SHA를 확보해도 Claim별
+  fixed-SHA README·코드와 component license를 사람이 검토하기 전에는 `I2/V2`로 올리지 않는다.
+- 신규 profile을 포함한 전체 KB diff를 staged binary patch artifact로 전달하고 publish job에서
+  적용·재검증해 profile과 index가 한 PR에서 atomic하게 review되도록 한다.
+- 링크 intake별 execution record 생성은 중단한다. 이 구현 기록은 자동화 자체의 변경·실패
+  경계를 보존하는 별도 실행 증거다.

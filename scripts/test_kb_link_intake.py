@@ -85,15 +85,20 @@ class PrepareTests(unittest.TestCase):
             outputs = output_path.read_text(encoding="utf-8")
             self.assertEqual(payload["source_url"], "https://example.com/post")
             self.assertEqual(payload["source_id"], "issue-42")
-            self.assertIn("record_name", outputs)
-            self.assertIn("kb-link-issue-42.md", outputs)
+            self.assertNotIn("record_name", outputs)
 
 
 class AnalyzeTests(unittest.TestCase):
     def test_html_extractor_omits_script_and_style(self) -> None:
-        parser = kb_link_intake._TextExtractor()
-        parser.feed("<h1>제목</h1><script>secret()</script><style>x{}</style><p>본문</p>")
-        self.assertEqual(parser.parts, ["제목", "본문"])
+        parser = kb_link_intake._TextExtractor("https://example.com/post")
+        parser.feed(
+            '<h1>제목</h1><a href="/official">공식</a>'
+            "<script>secret()</script><style>x{}</style><p>본문</p>"
+        )
+        self.assertEqual(
+            parser.parts,
+            ["제목", "Link: https://example.com/official", "공식", "본문"],
+        )
 
     @patch("kb_link_intake.socket.getaddrinfo")
     def test_rejects_hostname_resolving_to_private_address(self, resolve) -> None:
@@ -129,6 +134,19 @@ class AnalyzeTests(unittest.TestCase):
             )
 
             decision = RenderTests.decision()
+            upstream = kb_link_intake.GitHubUpstream(
+                name="example-tool",
+                full_name="example/example-tool",
+                html_url="https://github.com/example/example-tool",
+                default_branch="main",
+                head_sha="a" * 40,
+                license_spdx="MIT",
+                archived=False,
+                description="Example",
+                homepage="https://example.com",
+                readme_url="https://github.com/example/example-tool/blob/" + "a" * 40 + "/README.md",
+                readme_text="README",
+            )
             api_body = json.dumps(
                 {
                     "candidates": [
@@ -151,7 +169,13 @@ class AnalyzeTests(unittest.TestCase):
             with (
                 patch.object(kb_link_intake, "REPO_ROOT", root),
                 patch.object(kb_link_intake, "INTAKE_PATH", intake_path),
-                patch.object(kb_link_intake, "fetch_source_text", return_value="본문"),
+                patch.object(kb_link_intake, "UPSTREAM_PATH", root / "gemini-artifacts" / "kb-link-upstream.json"),
+                patch.object(
+                    kb_link_intake,
+                    "fetch_source_text",
+                    return_value="본문 Link: https://github.com/example/example-tool",
+                ),
+                patch.object(kb_link_intake, "github_upstream", return_value=upstream),
                 patch.object(kb_link_intake, "build_opener", return_value=opener),
                 patch.dict(
                     os.environ,
@@ -180,11 +204,20 @@ class RenderTests(unittest.TestCase):
         value: dict[str, object] = {
             "decision": "add",
             "title": "테스트 링크",
+            "tool_name": "example-tool",
+            "official_upstream": "https://github.com/example/example-tool",
+            "one_line_role": "에이전트 협업 도구",
             "reason": "새로운 근거가 있어 추가합니다.",
             "summary": "링크의 핵심 내용을 간략히 분석했습니다.",
             "key_points": ["새로운 [근거](relative.md)"],
             "kb_relevance": "AX 플랫폼 설계와 관련됩니다.",
             "limitations": ["런타임은 검증하지 않았습니다."],
+            "capabilities": ["human-agent collaboration"],
+            "integrations": ["Markdown"],
+            "borrow": "파일 기반 협업 패턴",
+            "adapt": "권한 경계를 추가",
+            "avoid": "동시성 보장 추정",
+            "build": "감사 가능한 동기화 계층",
         }
         value.update(overrides)
         return value
@@ -193,10 +226,39 @@ class RenderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             intake_path = root / ".gemini" / "kb-link-intake.json"
-            record_root = root / "knowledge-base" / "execution-records"
+            tools_root = root / "knowledge-base" / "tools"
+            upstream_path = root / "gemini-artifacts" / "kb-link-upstream.json"
             response_path = root / "response.json"
             output_path = root / "github-output.txt"
             intake_path.parent.mkdir(parents=True)
+            tools_root.mkdir(parents=True)
+            (root / "knowledge-base" / "index.md").write_text(
+                "---\nid: test-index\ntype: index\ntitle: Test\nstatus: active\ntags: [test]\n---\n\n# Test\n",
+                encoding="utf-8",
+            )
+            (tools_root / "catalog.md").write_text(
+                "---\nid: test-catalog\ntype: catalog\ntitle: Test\nstatus: active\ntags: [test]\n---\n\n# Test\n",
+                encoding="utf-8",
+            )
+            (tools_root / "coverage.md").write_text(
+                "---\nid: test-coverage\ntype: coverage-matrix\ntitle: Test\nstatus: active\ntags: [test]\n---\n\n# Test\n",
+                encoding="utf-8",
+            )
+            upstream_path.parent.mkdir(parents=True)
+            upstream_path.write_text(
+                json.dumps(
+                    {
+                        "name": "example-tool",
+                        "html_url": "https://github.com/example/example-tool",
+                        "default_branch": "main",
+                        "head_sha": "a" * 40,
+                        "license_spdx": "MIT",
+                        "archived": False,
+                        "readme_url": "https://github.com/example/example-tool/blob/" + "a" * 40 + "/README.md",
+                    }
+                ),
+                encoding="utf-8",
+            )
             intake_path.write_text(
                 json.dumps(
                     {
@@ -223,7 +285,7 @@ class RenderTests(unittest.TestCase):
             with (
                 patch.object(kb_link_intake, "REPO_ROOT", root),
                 patch.object(kb_link_intake, "INTAKE_PATH", intake_path),
-                patch.object(kb_link_intake, "RECORD_ROOT", record_root),
+                patch.object(kb_link_intake, "UPSTREAM_PATH", upstream_path),
                 patch.dict(
                     os.environ,
                     {
@@ -236,11 +298,15 @@ class RenderTests(unittest.TestCase):
 
             rendered = result.read_text(encoding="utf-8")
             self.assertEqual(decision, "add")
-            self.assertIn("execution-run-kb-link-issue-42", rendered)
-            self.assertIn("intake_decision: add", rendered)
+            self.assertEqual(result, tools_root / "example-tool.md")
+            self.assertIn("type: tool-profile", rendered)
+            self.assertIn("tool-version:example-tool@" + "a" * 40, rendered)
             self.assertIn("requested model: `gemini-test`", rendered)
             self.assertNotIn("[근거](relative.md)", rendered)
             self.assertIn("&#91;근거&#93;(relative.md)", rendered)
+            self.assertIn("example-tool.md", (root / "knowledge-base" / "index.md").read_text())
+            self.assertIn("example-tool.md", (tools_root / "catalog.md").read_text())
+            self.assertIn("example-tool.md", (tools_root / "coverage.md").read_text())
             self.assertIn("\nadd\n", output_path.read_text(encoding="utf-8"))
 
     def test_skip_decision_writes_reason_without_kb_record(self) -> None:

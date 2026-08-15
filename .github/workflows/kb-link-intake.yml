@@ -35,7 +35,8 @@ jobs:
     outputs:
       decision: ${{ steps.render.outputs.decision }}
       issue_number: ${{ steps.intake.outputs.issue_number }}
-      record_name: ${{ steps.intake.outputs.record_name }}
+      profile_name: ${{ steps.render.outputs.profile_name }}
+      tool_key: ${{ steps.render.outputs.tool_key }}
       source_id: ${{ steps.intake.outputs.source_id }}
 
     steps:
@@ -54,6 +55,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.5-flash' }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: >-
           python3 scripts/kb_link_intake.py analyze
           --response-json gemini-artifacts/response.json
@@ -68,14 +70,20 @@ jobs:
 
       - name: Validate knowledge base
         if: steps.render.outputs.decision == 'add'
-        run: python3 scripts/validate_knowledge_base.py
+        run: |-
+          set -euo pipefail
+          python3 scripts/validate_knowledge_base.py
+          git diff --check
+          git add -- knowledge-base
+          git diff --cached --check
+          git diff --cached --binary -- knowledge-base > gemini-artifacts/kb-proposal.patch
 
-      - name: Upload proposed record
+      - name: Upload proposed knowledge change
         if: steps.render.outputs.decision == 'add'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: kb-link-record-${{ github.run_id }}
-          path: knowledge-base/execution-records/${{ steps.intake.outputs.record_name }}
+          name: kb-link-proposal-${{ github.run_id }}
+          path: gemini-artifacts/kb-proposal.patch
           if-no-files-found: error
           retention-days: 7
 
@@ -114,18 +122,19 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
 
-      - name: Download proposed record
+      - name: Download proposed knowledge change
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: kb-link-record-${{ github.run_id }}
-          path: knowledge-base/execution-records
+          name: kb-link-proposal-${{ github.run_id }}
+          path: ${{ runner.temp }}/kb-link-proposal
 
       - name: Validate proposed change
         env:
-          RECORD_NAME: ${{ needs.analyze.outputs.record_name }}
+          PROFILE_NAME: ${{ needs.analyze.outputs.profile_name }}
         run: |-
           set -euo pipefail
-          test -f "knowledge-base/execution-records/${RECORD_NAME}"
+          git apply "${RUNNER_TEMP}/kb-link-proposal/kb-proposal.patch"
+          test -f "knowledge-base/tools/${PROFILE_NAME}"
           python3 scripts/validate_knowledge_base.py
           git diff --check
 
@@ -135,35 +144,37 @@ jobs:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ needs.analyze.outputs.issue_number }}
-          RECORD_NAME: ${{ needs.analyze.outputs.record_name }}
+          PROFILE_NAME: ${{ needs.analyze.outputs.profile_name }}
           SOURCE_ID: ${{ needs.analyze.outputs.source_id }}
+          TOOL_KEY: ${{ needs.analyze.outputs.tool_key }}
         run: |-
           set -euo pipefail
 
           branch="automation/kb-link-${SOURCE_ID}-${GITHUB_RUN_ID}"
-          record_path="knowledge-base/execution-records/${RECORD_NAME}"
           pr_body_file="${RUNNER_TEMP}/kb-link-pr-body.md"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "${branch}"
-          git add -- "${record_path}"
+          git add -- knowledge-base/index.md knowledge-base/tools/catalog.md \
+            knowledge-base/tools/coverage.md \
+            "knowledge-base/tools/${PROFILE_NAME}"
           git diff --cached --check
-          git commit -m "docs(kb): add ${SOURCE_ID} link analysis"
+          git commit -m "docs(kb): add ${TOOL_KEY} knowledge candidate"
           git push origin "HEAD:refs/heads/${branch}"
 
           printf '%s\n' \
-            'Gemini가 생성한 링크 분석 기록입니다.' \
+            '공식 GitHub upstream을 확인해 생성한 지식 후보입니다.' \
             '' \
             '- 자동 병합되지 않습니다.' \
-            '- 원문 주장과 모델 분석을 검토한 뒤 병합해 주세요.' \
-            '- 정적 KB validator를 통과한 기록만 포함합니다.' \
+            '- Tool profile과 KB index/catalog/coverage 연결을 함께 포함합니다.' \
+            '- V1 Claim을 fixed-SHA source와 대조한 뒤 병합해 주세요.' \
             > "${pr_body_file}"
 
           pr_url="$(gh pr create \
             --base "${DEFAULT_BRANCH}" \
             --head "${branch}" \
-            --title "docs(kb): ${SOURCE_ID} 링크 분석" \
+            --title "docs(kb): ${TOOL_KEY} 지식 후보" \
             --body-file "${pr_body_file}")"
           printf 'pr_url=%s\n' "${pr_url}" >> "${GITHUB_OUTPUT}"
 
@@ -175,7 +186,7 @@ jobs:
           PR_URL: ${{ steps.push.outputs.pr_url }}
         run: >-
           gh issue comment "${ISSUE_NUMBER}"
-          --body "Gemini 링크 분석을 완료하고 검토용 PR을 만들었습니다: ${PR_URL}"
+          --body "공식 upstream을 확인한 지식 후보와 KB 인덱스를 검토용 PR로 만들었습니다: ${PR_URL}"
 
   report-skip:
     name: Report skip reason
