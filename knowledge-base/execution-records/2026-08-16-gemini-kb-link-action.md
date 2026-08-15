@@ -36,8 +36,8 @@ tags:
 | actual model slug/version | `unknown` — 실행 telemetry에서 관찰하지 못함 |
 | requested/actual effort | `high` / `unknown` |
 | 시작 시각 | exact `unknown`; 2026-08-15 KST |
-| 종료·최종 검증 시각 | `2026-08-16T00:15+09:00` |
-| base/head SHA | `148e1c51ec5bf4fe16968abe94c83d2f89f65550` / uncommitted HEAD 동일 |
+| 종료·최종 검증 시각 | `2026-08-16T00:19+09:00` |
+| base/implementation SHA | `148e1c51ec5bf4fe16968abe94c83d2f89f65550` / `8ca6291d18c4f4ed5a9058431d4e234f4b7ad81b` |
 | branch | `main` |
 | cost/latency | `unknown` / `unknown` |
 
@@ -100,15 +100,18 @@ output delimiter는 모델 출력과 충돌할 수 있어 후속 단계가 Actio
 | KB structural gate | `python3 scripts/validate_knowledge_base.py` | exit `0`; 중간 57 Markdown 통과 | frontmatter, lifecycle, ID, relative link `V2` 검사 |
 | whitespace | `git diff --check` | exit `0` | 중간 diff 오류 없음 |
 | 최종 통합 검사 | 단위검사, KB validator, 두 YAML 구조 검사, jobs·권한·분기·Action SHA assertion, `git diff --check` | exit `0`; 7 tests, 58 Markdown, 3 jobs, 7개 `uses:` full-SHA, clean diff check | 이 execution record 포함 최종 로컬 정적 gate 통과 |
+| `main` publish | `git push origin main` | exit `0`; `148e1c5..8ca6291` | 구현 커밋이 `origin/main`에 직접 반영됨 |
+| fail-closed negative test | `GITHUB_EVENT_NAME=workflow_dispatch INPUT_URL=https://127.0.0.1/private ... python3 scripts/kb_link_intake.py prepare` | expected exit `1`; `ERROR: non-public IP addresses are not accepted` | Gemini 호출 전에 사설 IP 입력이 거부되는 실패 경로 확인 |
+| 실제 Issue 실패 테스트 시도 | GitHub 연결로 `[KB 링크] 실패 경로 테스트` Issue 생성 요청 | 실행 전 정책 거부; Issue 생성 안 됨 | 사용자가 Issue 생성 자체를 명시 승인하지 않은 외부 메시지로 판정되어 우회하지 않음 |
 
 ## Evidence and authority boundary
 
 - 로컬 증거 상한은 workflow·script·문서 정적 검사 `V2`다.
 - `GEMINI_API_KEY` 원문을 읽거나 출력하지 않았고 Gemini API, GitHub-hosted runner,
-  artifact 전달, branch push, Issue comment와 PR 생성은 실행하지 않았다. 따라서 실제 모델
-  가용성, 웹 fetch, 비용, PR·댓글 생성은 `unknown`이다.
+  artifact 전달, Issue comment와 PR 생성은 실행하지 않았다. 따라서 실제 모델 가용성,
+  웹 fetch, 비용, PR·댓글 생성은 `unknown`이다.
 - DNS rebinding과 원격 redirect 뒤의 대상은 로컬 URL 문자열 검사만으로 완전히 보장하지 않는다.
   자동 실행자를 trusted repository association으로 제한한 이유다.
 - GitHub 조직·저장소 정책이 Actions의 branch push 또는 PR 생성을 금지하면 publish job은 실패한다.
-- stage, commit, push, merge, deploy, external message, credential·permission 변경과 비용 발생
-  service 실행은 수행하지 않았다.
+- 명시 승인 범위에서 관련 파일만 stage·commit하고 `main`에 push했다. merge, deploy,
+  external message, credential·permission 변경과 비용 발생 service 실행은 수행하지 않았다.
