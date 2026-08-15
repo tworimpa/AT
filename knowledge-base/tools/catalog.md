@@ -1,7 +1,7 @@
 ---
 id: tool-catalog-2026-08-14
 type: catalog
-title: 34개 AI 에이전트 도구 역할 및 도입 판단
+title: 35개 AI 에이전트 도구 역할 및 도입 판단
 status: active
 tags:
   - knowledge-base
@@ -13,11 +13,11 @@ origin_integrity: I2
 verification_ceiling: V2
 ---
 
-# 34개 AI 에이전트 도구 역할 및 도입 판단
+# 35개 AI 에이전트 도구 역할 및 도입 판단
 
 [지식 베이스 홈](../index.md) · [플랫폼 청사진](../platform-blueprint.md) · [스키마와 작성 규칙](../knowledge-graph-schema.md)
 
-이 문서는 기존 상세 분석을 다시 풀어 쓰는 보고서가 아니라 역할별 탐색 인덱스다. 기능·제약의 상세 근거는 [저장소 분석](../../planning/REPOSITORY_GITHUB_ANALYSIS.md)과 [소스 스냅샷 인덱스](../../multi-agent-tools/README.md)를 따른다. 기존 33개 SHA는 부모 저장소 `4e6731a1b274eba5a8451b97594aadcf570108ee`의 gitlink이며, Paseo는 2026-08-14에 확인한 fixed SHA를 새 gitlink로 추가했다. 공식 upstream URL은 `.gitmodules`에서 확인한다.
+이 문서는 기존 상세 분석을 다시 풀어 쓰는 보고서가 아니라 역할별 탐색 인덱스다. 기능·제약의 상세 근거는 [저장소 분석](../../planning/REPOSITORY_GITHUB_ANALYSIS.md), [소스 스냅샷 인덱스](../../multi-agent-tools/README.md)와 각 ToolVersion 프로필을 따른다. 기존 33개 SHA는 부모 저장소 `4e6731a1b274eba5a8451b97594aadcf570108ee`의 gitlink이며, Paseo는 2026-08-14에 fixed-SHA gitlink로 추가됐다. TencentDB Agent Memory는 2026-08-15 official commit을 manifest-only로 추가했으며 official upstream과 pin은 해당 프로필에 보존한다.
 
 ## 판단 기호
 
@@ -63,6 +63,12 @@ verification_ceiling: V2
 | [squad](https://github.com/mco-org/squad) | [`8146bcc1c38c439aedaf3ff44548c830654c8621`](./squad.md) | embedded SQLite message/task queue | 채택: 가벼운 typed coordination 패턴 | `I2 / V2 / W0` |
 | [Beads](https://github.com/gastownhall/beads) | [`d1e725d9f35ba307518551b4e61b3d504fb41ec5`](./beads.md) | dependency-aware task memory와 atomic claim | 채택: ready queue·lease fencing | `I2 / V2 / W0` |
 | [sudocode](https://github.com/sudocode-ai/sudocode) | [`632de1910bc4e272f99db7a33dad8f22feb743d9`](./sudocode.md) | Git 기반 spec/issue/execution graph | 채택: intent graph와 run graph 분리 | `I2 / V2 / W0` |
+
+## Agent memory와 knowledge plane
+
+| 도구와 공식 출처 | 고정 ToolVersion / snapshot | 주 역할 | 판단 | 현재 등급 |
+|---|---|---|---|---|
+| [TencentDB Agent Memory](https://github.com/TencentCloud/TencentDB-Agent-Memory) | [`9059e52d11b7e66c2a3b5eb6161e4b4b8603c8c2`](./tencentdb-agent-memory.md) | 계층형 Memory·Skill·Wiki·CodeGraph 자산과 팀 ACL·Agent binding을 제공하는 memory/knowledge plane | 파일럿: asset governance·on-demand retrieval 참고; tenant/retention/backend failure 검증 전 직접 통합 보류 | `I2 / V2 / windows:P0 / linux:P1` |
 
 ## Protocol과 adapter
 

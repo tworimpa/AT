@@ -19,11 +19,11 @@ verification_ceiling: V2
 
 # Cross-platform 맞춤형 에이전트 플랫폼 청사진
 
-[지식 베이스 홈](./index.md) · [AX 플랫폼 지속 컨텍스트](./ax-platform-context.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [34개 도구 카탈로그](./tools/catalog.md) · [프로필 커버리지](./tools/coverage.md) · [스키마와 작성 규칙](./knowledge-graph-schema.md)
+[지식 베이스 홈](./index.md) · [AX 플랫폼 지속 컨텍스트](./ax-platform-context.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [35개 도구 카탈로그](./tools/catalog.md) · [프로필 커버리지](./tools/coverage.md) · [스키마와 작성 규칙](./knowledge-graph-schema.md)
 
 이 문서는 [상세 오케스트레이션 기획](../planning/FAST_MULTI_AGENT_ORCHESTRATION_PLAN.md)과 [요구사항 명세](../planning/AI_AGENT_DEVELOPMENT_ENVIRONMENT_REQUIREMENTS.md)의 탐색용 의사결정 뷰다. 구현 완료 보고가 아니며 현재 상태는 설계·정적 근거 `V2`다.
 
-34개 도구의 판단은 단일 제품 도입 결론이 아니라 `Borrow`·`Adapt`·`Avoid`·`Build` 설계 재료다. 전사 업무·권한·감사·보안·운영 질문과 계층 경계는 [사내 AX reference architecture](./internal-ax-reference-architecture.md)를 기준으로 하고, 이 문서는 기술 구현 순서와 acceptance를 구체화한다.
+35개 도구의 판단은 단일 제품 도입 결론이 아니라 `Borrow`·`Adapt`·`Avoid`·`Build` 설계 재료다. 전사 업무·권한·감사·보안·운영 질문과 계층 경계는 [사내 AX reference architecture](./internal-ax-reference-architecture.md)를 기준으로 하고, 이 문서는 기술 구현 순서와 acceptance를 구체화한다.
 
 ## 제품 목표
 

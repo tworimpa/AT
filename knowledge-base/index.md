@@ -15,15 +15,15 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 
 # AI 에이전트 지식 베이스
 
-이 디렉터리는 34개 AI 에이전트 도구·서비스의 조사 결과와 앞으로의 실험 증거를 Obsidian에서 계속 연결해 가는 저장소 내 지식 베이스다. 상세 분석과 요구사항은 기존 `planning/` 문서를 원본으로 유지하고, 여기서는 도구·역할·기능·출처·검증 상태 사이의 탐색 경로와 현재 결정을 제공한다.
+이 디렉터리는 35개 AI 에이전트 도구·서비스의 조사 결과와 앞으로의 실험 증거를 Obsidian에서 계속 연결해 가는 저장소 내 지식 베이스다. 상세 분석과 요구사항은 기존 `planning/` 문서를 원본으로 유지하고, 여기서는 도구·역할·기능·출처·검증 상태 사이의 탐색 경로와 현재 결정을 제공한다.
 
 ## 지금 확인된 상태
 
 | 항목 | 현재 상태 | 해석 |
 |---|---|---|
-| 조사 대상 | 34개 Tool, 34개 고정 ToolVersion | `.gitmodules`와 gitlink가 공식 upstream과 commit SHA를 고정한다. |
+| 조사 대상 | 35개 Tool, 35개 고정 ToolVersion | 기존 34개는 gitlink, TencentDB Agent Memory는 manifest-only official commit으로 고정한다. |
 | 부모 기준점 | `caaae4a47a127808eedac657c394b6a8fd9be460` | Paseo 추가 조사와 지식 베이스 갱신을 시작할 때 읽은 로컬 `main` 스냅샷이다. |
-| 출처 무결성 | 34/34 `I2` | 공식 upstream 확인과 fixed SHA gitlink 무결성까지 확인했다. |
+| 출처 무결성 | 35/35 `I2` | 기존 34개는 fixed SHA gitlink, 신규 1개는 official upstream HEAD와 immutable commit 일치를 확인했다. |
 | 기능 검증 | 최대 `V2` | 문서·고정 SHA 소스의 정적 분석까지다. 의존성 설치와 전체 build는 수행하지 않았다. |
 | 실행 검증 | `V3+` evidence 0건 | build, 통제 runtime, E2E/failure injection, 운영 검증은 아직 없다. |
 | 플랫폼 검증 | 최대 정적 `P1` | 기존 Windows 조사는 최대 legacy `W1`이며 실제 Windows/Linux native 실행(`P2`)과 플랫폼별 회귀 suite(`P3`)는 없다. Linux 지원 매트릭스는 아직 체계적으로 작성되지 않았다. |
@@ -35,9 +35,10 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 - [AX 플랫폼 지속 컨텍스트](./ax-platform-context.md): 다음 세션이 먼저 읽을 목표, 현재 상태, 금지된 가정, 미결정과 다음 안전 단계
 - [AX-AD-001 Cross-platform core 결정](./decisions/AX-AD-001-cross-platform-core.md): Windows와 Linux native executor를 모두 core로 두는 승인된 플랫폼 범위와 아직 미결인 support matrix
 - [사내 AX reference architecture](./internal-ax-reference-architecture.md): Windows/Linux native를 포함한 cross-platform 계층 구조, 최소 코어·확장 옵션, Capability→AX Need→결정·로드맵 연결
-- [34개 도구 역할·도입 카탈로그](./tools/catalog.md): 역할별 조사 목록, 공식 upstream, 고정 SHA, 도입 판단과 현재 증거 등급
-- [34개 ToolVersion 프로필 커버리지](./tools/coverage.md): schema v2 프로필·필수 섹션·provenance·legacy `I/V/W`와 template v3 플랫폼 evidence 이관 현황
+- [35개 도구 역할·도입 카탈로그](./tools/catalog.md): 역할별 조사 목록, 공식 upstream, 고정 SHA, 도입 판단과 현재 증거 등급
+- [35개 ToolVersion 프로필 커버리지](./tools/coverage.md): schema v2/v3 프로필·필수 섹션·provenance와 플랫폼 evidence 이관 현황
 - [Paseo 고정 ToolVersion 프로필](./tools/paseo.md): multi-provider control plane, protocol, Windows 정적 근거와 명시적 한계
+- [TencentDB Agent Memory 고정 ToolVersion 프로필](./tools/tencentdb-agent-memory.md): 계층형 memory/knowledge asset plane, ACL·binding, retention·backend failure 경계
 - [에이전트 실행 프로파일](./agent-profiles.md): 역할과 분리된 모델 등급·effort·권한·예산·증거·escalation 정책
 - [공통 에이전트 운영 규칙](../AGENTS.md): 모든 작업에 지속 적용되는 범위·권한·증거·완료 보고 규칙
 - [Cross-platform 에이전트 플랫폼 청사진](./platform-blueprint.md): 목표 구조, 에이전트 역할, 우선 로드맵과 결정 게이트
@@ -45,6 +46,7 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 - [도구 프로필 템플릿](./templates/tool-profile.md): 새 ToolVersion을 같은 형식으로 기록하는 시작점
 - [2026-08-14 프로필 통합 실행 기록](./execution-records/2026-08-14-tool-profile-integration.md): profile/model/environment, 정적 validation과 미실행 경계
 - [2026-08-15 cross-platform 정합화 실행 기록](./execution-records/2026-08-15-cross-platform-scope-alignment.md): Windows/Linux core 결정, schema/template 전환, 정적 validation과 미실행 경계
+- [2026-08-15 TencentDB Agent Memory 조사 실행 기록](./execution-records/2026-08-15-tencentdb-agent-memory-research.md): official fixed commit 조사, manifest-only 등록과 `V2/P` 경계
 
 ## 원본 근거
 

@@ -1,7 +1,7 @@
 ---
 id: tool-profile-coverage-2026-08-14
 type: coverage-matrix
-title: 34개 ToolVersion 프로필 커버리지
+title: 35개 ToolVersion 프로필 커버리지
 status: active
 tags:
   - knowledge-base
@@ -14,11 +14,11 @@ source_parent_commit: 984cac0634b83d10af91d8e1814680816e67c53b
 verification_ceiling: V2
 ---
 
-# 34개 ToolVersion 프로필 커버리지
+# 35개 ToolVersion 프로필 커버리지
 
 [지식 베이스 홈](../index.md) · [AX 플랫폼 지속 컨텍스트](../ax-platform-context.md) · [도구 카탈로그](./catalog.md) · [프로필 템플릿](../templates/tool-profile.md) · [스키마와 acceptance gate](../knowledge-graph-schema.md#상세-프로필-acceptance-gate)
 
-이 표는 34개 catalog/gitlink가 상세 ToolVersion 프로필과 필수 섹션으로 연결됐는지를 추적한다. 기존 행의 `coverage`는 schema v2 문서 구조의 완성도이고 `I/V/W`는 당시 Claim의 증거 ceiling이다. 프로필이 `10/10`이어도 build/runtime/E2E가 실행됐다는 뜻이 아니며, `I2/V2`여도 문서 섹션이 완성됐다는 뜻이 아니다.
+이 표는 기존 34개 catalog/gitlink와 신규 manifest-only 대상 1개가 상세 ToolVersion 프로필과 필수 섹션으로 연결됐는지를 추적한다. 기존 행의 `coverage`는 schema v2 문서 구조의 완성도이고 `I/V/W`는 당시 Claim의 증거 ceiling이다. 프로필이 `10/10`이어도 build/runtime/E2E가 실행됐다는 뜻이 아니며, `I2/V2`여도 문서 섹션이 완성됐다는 뜻이 아니다.
 
 2026-08-15에 플랫폼 모델은 Windows 전용 `W0~W3`에서 OS별 `P0~P3`을 기록하는 cross-platform template v3로 확장됐다. 아래 34행의 legacy `W` 값은 원본 조사 evidence로 보존하며 Linux 값으로 복제하지 않는다. v3 `platform_evidence` 이관은 현재 0/34이고, 이는 기존 프로필이나 Claim이 삭제·반증됐다는 뜻이 아니라 Windows/Linux별 재판정이 필요하다는 뜻이다.
 
@@ -30,6 +30,7 @@ verification_ceiling: V2
 - 작성됨 34개: 그중 schema v2 기준 `10/10 covered` 23개, `partial` 11개. 파일 존재만으로 covered로 세지 않았다.
 - schema v3 플랫폼 이관: `platform_evidence.windows`와 `platform_evidence.linux`를 source·result·host/guest scope와 함께 기록한 프로필 0/34. 미확인을 pass로 채우지 않는다.
 - missing/in-progress 0개. 새 9개도 `V2` 정적 근거까지만 작성했으며 실행 검증 완료를 뜻하지 않는다.
+- 신규 manifest-only 1개(TencentDB Agent Memory)는 template v3 `10/10 covered`, Windows `P0`, Linux `P1`이며 기존 34개 gitlink 무결성 집합과 별도로 센다.
 - 공통 실행 경계: build/runtime/E2E 미실행, `V3+` 0건, `W2/W3` 0건. `W1`은 좁은 Windows 정적 근거다.
 
 ## Coverage matrix
@@ -70,6 +71,7 @@ verification_ceiling: V2
 | 32 | [Taskplane `504ee68`](https://github.com/HenryLach/taskplane/tree/504ee6888239c511d69cd36479abf4ccfabe253f) | [작성됨](./taskplane.md) | `10/10` | parent pin + official tree | `I2` | `V2` | `W1` narrow | actual Windows scheduler lifecycle와 collision fixture | covered |
 | 33 | [Vercel Sandbox `2c2c942`](https://github.com/vercel/sandbox/tree/2c2c942239fd9ef47bed0b9295389b702ce6c0ff) | [작성됨](./vercel-sandbox.md) | `6/10` | parent pin + official tree | `I2` | `V2` | `W0` | remote create/resume/fork/network policy conformance | partial |
 | 34 | [Warren `bb9a4f1`](https://github.com/jayminwest/warren/tree/bb9a4f1ced640f220b062c1ddfb9ba778e990bfa) | [작성됨](./warren.md) | `10/10` | parent pin + official tree | `I2` | `V2` | `W0` | sandbox fleet isolation·recovery runtime 검증 | covered |
+| 35 | [TencentDB Agent Memory `9059e52`](https://github.com/TencentCloud/TencentDB-Agent-Memory/tree/9059e52d11b7e66c2a3b5eb6161e4b4b8603c8c2) | [작성됨](./tencentdb-agent-memory.md) | `10/10` | manifest pin + official fixed source | `I2` | `V2` | `windows:P0; linux:P1` | tenant/ACL, lifecycle·retention, backend failure와 Windows native 검증 | covered |
 
 ## Known gaps and interpretation
 
