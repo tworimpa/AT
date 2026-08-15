@@ -65,6 +65,18 @@ analysis_snapshot_date: <YYYY-MM-DD>
 - Integration: <ACP/MCP/CLI/PTY/HTTP/...>
 - SecurityOperationalRequirement: <충족·필요·위반 관계>
 
+## 실행 선택 제약
+
+| 항목 | 값 | 근거·시점·한계 |
+|---|---|---|
+| Runtime / prerequisites | <OS/host·guest, runtime/version, dependency, credential, network/service> | <fixed-SHA locator 또는 unknown> |
+| Supported protocols / surfaces | <CLI/REST/WebSocket/MCP/...> | <확인한 ToolVersion 범위와 locator> |
+| Rate limits | <값 또는 unknown> | <fixed config 또는 시변 서비스 source, observed_at, TTL> |
+| Timeout / retry | <값 또는 unknown> | <client/server/policy별 범위와 locator> |
+| Fallback candidates | <tool-key 목록 또는 none/unknown> | <전환 조건, capability/evidence/security loss, 추가 승인·credential·비용> |
+
+fallback은 호환성·권한·안전성 보장이 아니라 검토 후보다. 전환으로 external write, credential audience, 데이터 경계, 비용 또는 검증 등급이 바뀌면 자동 선택하지 않고 새 capability/policy 협상과 필요한 승인을 거친다.
+
 ## Claims
 
 | Claim ID | 종류 | 검증 가능한 주장 | 공식 최신 근거·조사일 | fixed-SHA SourceArtifact | I | V | 플랫폼별 P | 결과·한계 |

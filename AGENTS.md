@@ -23,6 +23,13 @@
 - 문서 주장 `V1`, fixed-SHA 정적 코드 `V2`, build `V3`, 통제 runtime `V4`, E2E/failure injection `V5`, 운영 `V6`를 분리한다. Windows와 Linux 등 각 OS의 정적 경로 `P1`을 해당 OS의 실제 실행 `P2/P3`로 승격하지 않는다. 기존 프로필의 `W0~W3`은 Windows 역사 증거로 보존한다.
 - agent 자기보고, green 정적 검사, gitlink 일치, CI는 각각 해당 범위의 증거일 뿐 merge·배포·외부 서비스·production 성공을 자동 증명하지 않는다.
 
+## 지식 베이스 변경 검증
+
+- `knowledge-base/`를 새로 만들거나 수정하면 `python3 scripts/validate_knowledge_base.py`를 실행해 YAML frontmatter, 문서 유형별 lifecycle status, 중복 ID와 repository-relative link를 검사한다.
+- 새 도구 프로필이나 기존 프로필의 구조를 갱신하면 [도구 프로필 템플릿](knowledge-base/templates/tool-profile.md)의 필수 섹션과 [지식 그래프 스키마](knowledge-base/knowledge-graph-schema.md)의 Claim/Evidence·고정 버전·플랫폼 규칙을 확인한다.
+- 검증기의 green 결과는 문서 구조 `V2` 범위만 지지한다. source locator의 내용, build/runtime, 외부 링크 가용성 또는 production 적합성은 해당 증거를 별도로 수집한다.
+- 검증 명령, exit code, 검사 범위와 건너뛴 검사를 해당 작업의 execution record에 남긴다.
+
 ## 권한과 사람 승인
 
 - 최소 권한과 fail-closed를 기본으로 한다. secret 원문을 출력·기록·커밋하지 않는다.

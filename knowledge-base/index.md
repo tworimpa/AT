@@ -34,6 +34,7 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 
 - [AX 플랫폼 지속 컨텍스트](./ax-platform-context.md): 다음 세션이 먼저 읽을 목표, 현재 상태, 금지된 가정, 미결정과 다음 안전 단계
 - [AX-AD-001 Cross-platform core 결정](./decisions/AX-AD-001-cross-platform-core.md): Windows와 Linux native executor를 모두 core로 두는 승인된 플랫폼 범위와 아직 미결인 support matrix
+- [KB-AD-001 컨텍스트 효율·lifecycle·검증 결정](./decisions/KB-AD-001-context-efficiency-governance.md): frontmatter/index 유지, 역사 상태와 검증 강화, JSON·bundler·MCP 도입 조건
 - [사내 AX reference architecture](./internal-ax-reference-architecture.md): Windows/Linux native를 포함한 cross-platform 계층 구조, 최소 코어·확장 옵션, Capability→AX Need→결정·로드맵 연결
 - [35개 도구 역할·도입 카탈로그](./tools/catalog.md): 역할별 조사 목록, 공식 upstream, 고정 SHA, 도입 판단과 현재 증거 등급
 - [35개 ToolVersion 프로필 커버리지](./tools/coverage.md): schema v2/v3 프로필·필수 섹션·provenance와 플랫폼 evidence 이관 현황
@@ -47,6 +48,19 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 - [2026-08-14 프로필 통합 실행 기록](./execution-records/2026-08-14-tool-profile-integration.md): profile/model/environment, 정적 validation과 미실행 경계
 - [2026-08-15 cross-platform 정합화 실행 기록](./execution-records/2026-08-15-cross-platform-scope-alignment.md): Windows/Linux core 결정, schema/template 전환, 정적 validation과 미실행 경계
 - [2026-08-15 TencentDB Agent Memory 조사 실행 기록](./execution-records/2026-08-15-tencentdb-agent-memory-research.md): official fixed commit 조사, manifest-only 등록과 `V2/P` 경계
+- [2026-08-15 KB 컨텍스트·lifecycle 개선 실행 기록](./execution-records/2026-08-15-kb-context-governance-review.md): 개선안 평가, lifecycle·템플릿·정적 validator 반영과 검증 경계
+
+## 점진적 조회와 문서 상태
+
+에이전트는 저장소 전체를 한 번에 적재하지 않고 아래 단계로 필요한 범위만 연다.
+
+1. **L1 탐색**: 이 인덱스와 [지속 컨텍스트](./ax-platform-context.md)에서 현재 목표, 금지된 가정과 문서 위치를 고른다.
+2. **L2 선택**: 도구 작업은 [카탈로그](./tools/catalog.md)·[커버리지](./tools/coverage.md), 설계 작업은 [reference architecture](./internal-ax-reference-architecture.md)·[청사진](./platform-blueprint.md)을 읽는다.
+3. **L3 근거**: 선택한 ToolVersion 프로필, Decision Log, Claim의 fixed-SHA SourceArtifact와 필요한 execution record만 연다.
+
+모든 `knowledge-base/**/*.md`는 YAML frontmatter의 `id`, `type`, `title`, `status`, `tags`로 먼저 필터링할 수 있다. `status`는 문서 유형별 의미를 가진다. `active`는 현재 탐색·거버넌스 문서, `proposed|accepted|rejected|deferred`는 설계·결정 상태, `observed`는 고정 ToolVersion의 관찰 상태, `historical-snapshot`은 특정 실행의 불변 이력이다. `superseded|deprecated` 문서는 현재 규칙으로 사용하지 않고 `superseded_by` 또는 연결된 최신 문서를 따른다.
+
+충돌 시 [스키마의 source-of-truth 우선순위](./knowledge-graph-schema.md#markdown-source-of-truth)와 최신 accepted Decision을 적용한다. 실행 기록은 그 시점에 수행한 명령과 증거의 source이며 현재 설계 규칙의 source가 아니다.
 
 ## 원본 근거
 
@@ -64,6 +78,16 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 4. 문서상 주장과 실제 증거는 [스키마](./knowledge-graph-schema.md)의 `Claim → SourceArtifact → Evidence` 구조로 기록한다.
 5. 실행할 때는 [프로파일 카탈로그](./agent-profiles.md)에서 권한과 증거 요구를 선택하고 실제 model/version·effort·환경·cost/latency 관찰을 기록한다.
 6. 새 자료는 기존 ToolVersion을 덮어쓰지 않고 새 버전과 `SUPERSEDES` 관계를 추가한다.
+
+## 저장소 정적 검사
+
+지식 베이스를 변경한 뒤 아래 명령을 실행한다.
+
+```bash
+python3 scripts/validate_knowledge_base.py
+```
+
+이 검사는 frontmatter YAML, 공통 필드와 lifecycle status, 중복 `id`, repository-relative Markdown link를 확인한다. PyYAML이 없으면 fail-closed하며 설치나 환경 변경은 자동 수행하지 않는다. 외부 URL, fixed-SHA 내용의 정확성, 표 의미, build/runtime은 별도 검증 대상이다.
 
 ## 현재 경계
 

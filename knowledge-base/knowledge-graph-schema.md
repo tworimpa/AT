@@ -31,6 +31,7 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 8. 외부 서비스 가격·한도·상태는 TTL이 있는 관찰값으로 두고 코드·설계 사실과 분리한다.
 9. `Profile`은 모델·effort·권한·예산·evidence/escalation을 묶는 실행 정책이며 `AgentRole`과 분리한다.
 10. 고정 `ToolVersion`, 시점이 있는 `CurrentUpstreamObservation`, 분석자의 `AnalysisSnapshot`을 분리한다. 최신 관찰이 과거 고정 버전의 Claim을 바꾸지 않는다.
+11. Markdown의 `status`는 문서 유형별 lifecycle을 나타낸다. 실행 기록의 역사 상태와 현재 규칙·설계 상태를 같은 enum으로 오인하지 않는다.
 
 ## 최소 엔터티
 
@@ -134,6 +135,20 @@ version:
 
 Markdown frontmatter에는 자주 탐색하는 scalar와 tag만 두고, 상세 Claim/Evidence가 늘어나면 결정론적으로 생성하는 JSON/JSONL로 분리한다.
 
+## 문서 lifecycle과 authority
+
+`status`는 대문자/소문자 변형이나 별도 `state` 필드를 병행하지 않고 아래 kebab-case 값으로 기록한다. 같은 값이라도 `type`과 함께 해석한다.
+
+| 문서 유형 | 허용 lifecycle | authority와 사용 규칙 |
+|---|---|---|
+| `index`, `project-context`, `profile-catalog`, `governance`, `catalog`, `coverage-matrix` | `active`, `superseded`, `deprecated` | `active`만 현재 탐색·작성 규칙으로 사용한다. |
+| `reference-architecture`, `project-blueprint` | `proposed`, `accepted`, `superseded`, `deprecated` | proposal과 승인된 결정을 구분하며 최신 accepted Decision이 우선한다. |
+| `ArchitectureDecision` | `proposed`, `accepted`, `rejected`, `deferred`, `superseded`, `deprecated` | `superseded`면 `superseded_by`로 대체 결정을 연결한다. |
+| `tool-profile` | `observed`, `superseded`, `deprecated` | `observed`는 고정 ToolVersion 분석이며 current upstream 또는 runtime 성공을 뜻하지 않는다. |
+| `execution-record` | `historical-snapshot` | 기록된 run의 명령·환경·결과에만 authoritative하며 현재 정책·아키텍처 규칙이 아니다. |
+
+`superseded`에는 `superseded_by`를 필수로 둔다. 역사 문서는 삭제하거나 현재형으로 고치지 않고 새 문서와 관계를 추가한다. 현재 규칙과 과거 실행 기록이 충돌하면 active governance, 최신 accepted Decision, fixed ToolVersion의 Claim/Evidence 순위를 먼저 적용하고 실행 기록은 당시 관찰의 증거로만 사용한다.
+
 ## 서로 독립적인 증거 축
 
 ### 기능 검증 `V0~V6`
@@ -214,6 +229,17 @@ source-of-truth 우선순위는 다음과 같다.
 - 역사 자료를 삭제하거나 현재 상태로 덮어쓰지 않는다. 새 ToolVersion과 `SUPERSEDES`를 추가하고 이전 Claim은 `stale`로 표시한다.
 - 생성 파일을 도입하면 Markdown → JSON 변환은 결정론적이어야 하며 생성 JSON은 수동 편집하지 않는다.
 
+### 도구 선택·fallback 제약
+
+신규 또는 구조를 갱신하는 ToolVersion 프로필은 템플릿의 `실행 선택 제약` 표에 다음 항목을 기록한다.
+
+- runtime과 prerequisite: OS/host·guest, runtime/version, 설치·credential·network·service 의존성
+- supported protocol/surface: CLI, REST, WebSocket, MCP 등과 실제로 확인한 고정 버전 범위
+- rate limit과 timeout: fixed source 설정인지 시변 외부 서비스 관찰인지 구분하고, 시변 값에는 source·관찰 시각·TTL을 둔다.
+- fallback candidate: 전환 조건, 잃는 capability·evidence·security property, 추가 승인·credential·비용 조건
+
+fallback은 후보 관계일 뿐 자동 실행 권한이 아니다. 대체가 external write, credential audience, 데이터 경계, 비용, 검증 등급을 바꾸면 새 capability/policy 협상과 필요한 사람 승인을 거쳐야 한다. `unknown` 한도나 미검증 대체재를 안전한 기본값으로 해석하지 않는다.
+
 ## 새 도구 또는 새 버전 추가 절차
 
 1. **공식성 확인**: 제품 사이트, 조직, updater metadata 등으로 공식 upstream을 확인해 `I1`을 만든다.
@@ -227,6 +253,7 @@ source-of-truth 우선순위는 다음과 같다.
 9. **검증 계획**: build는 `V3`, runtime은 `V4`, E2E/failure injection은 `V5`로 별도 RoadmapItem과 acceptance를 만든다. 실행하지 않은 단계는 pass로 기록하지 않는다.
 10. **정적 gate**: 중복 ID, 깨진 상대 링크, SHA mismatch, license 누락, 출처 없는 Claim, artifact 없는 grade 승격, stale 조사일을 검사한다.
 11. **리뷰와 commit**: diff를 검토하고 관련 파일만 명시적으로 stage한다. 자동 수집은 provenance를 추가할 수 있지만 등급 승격에는 artifact gate와 사람 리뷰가 필요하다.
+12. **저장소 정적 gate**: `python3 scripts/validate_knowledge_base.py`로 frontmatter, lifecycle status, 중복 ID와 상대 링크를 검사하고 명령·exit를 execution record에 남긴다.
 
 ### 하이브리드 소스 운영 경계
 
@@ -255,3 +282,4 @@ property graph와 RDF/SHACL 중 장기 표현은 아직 결정하지 않는다. 
 6. 미검증 adoption-critical Claim마다 목표 등급, 환경, 시나리오, pass 기준, artifact와 승인 조건이 있는 다음 검증 항목을 둔다.
 7. 중복 ID, 깨진 상대 링크, moving-branch `V2` URL, catalog/profile 역링크, frontmatter enum/date와 SHA drift를 정적 검사한다.
 8. cross-platform profile은 최소한 `windows`와 `linux` 각각의 `P` grade, result, host/guest scope와 limitation을 가진다. `P1+`에는 OS별 source가, `P2+`에는 environment fingerprint와 실행 artifact가 있어야 하며 한 OS의 값을 다른 OS로 복제하지 않는다.
+9. 신규 또는 구조를 갱신한 프로필은 runtime/prerequisite, protocol, rate-limit/timeout의 source·시점, fallback의 capability loss와 승인 조건을 기록한다. 값이 없거나 확인하지 못했으면 추정하지 않고 `unknown`으로 둔다.

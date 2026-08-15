@@ -2,18 +2,24 @@
 id: execution-run-tool-profile-integration-2026-08-14
 type: execution-record
 title: 34개 ToolVersion 프로필과 사내 AX 지식 통합 실행 기록
-status: observed
+status: historical-snapshot
 observed_at: 2026-08-14
 profile_id: implement-deep
 profile_revision: unknown
 verification_ceiling: V2
+tags:
+  - knowledge-base
+  - execution-record
+  - historical-snapshot
 ---
 
 # 34개 ToolVersion 프로필과 사내 AX 지식 통합 실행 기록
 
 [지식 베이스 홈](../index.md) · [지속 컨텍스트](../ax-platform-context.md) · [reference architecture](../internal-ax-reference-architecture.md) · [프로필 커버리지](../tools/coverage.md)
 
-`status: observed`는 요청된 공용 통합 문서와 34개 상세 프로필이 작성·정적 검증됐음을 뜻한다. 현재 template coverage는 `covered` 23개, legacy/부분 구조 `partial` 11개, `missing`/`in-progress` 0개다. 이는 build/runtime/E2E 성공 상태가 아니며 실행 증거 부족을 성공으로 표현하지 않는다.
+이 문서는 해당 시점 run의 명령·환경·결과를 보존하는 역사적 스냅샷이다. 현재 규칙과 설계는 [지식 베이스 홈](../index.md), active governance와 최신 accepted Decision을 우선한다.
+
+요청된 공용 통합 문서와 34개 상세 프로필이 작성·정적 검증됐다. 현재 template coverage는 `covered` 23개, legacy/부분 구조 `partial` 11개, `missing`/`in-progress` 0개다. 이는 build/runtime/E2E 성공 상태가 아니며 실행 증거 부족을 성공으로 표현하지 않는다.
 
 ## Run identity
 

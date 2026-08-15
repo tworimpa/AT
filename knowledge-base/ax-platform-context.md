@@ -17,7 +17,7 @@ verification_ceiling: V2
 
 # 사내 AX 맞춤형 에이전트 플랫폼 지속 컨텍스트
 
-[지식 베이스 홈](./index.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [35개 ToolVersion 커버리지](./tools/coverage.md) · [스키마와 소스 운영 규칙](./knowledge-graph-schema.md) · [플랫폼 청사진](./platform-blueprint.md)
+[지식 베이스 홈](./index.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [KB 컨텍스트·lifecycle 결정](./decisions/KB-AD-001-context-efficiency-governance.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [35개 ToolVersion 커버리지](./tools/coverage.md) · [스키마와 소스 운영 규칙](./knowledge-graph-schema.md) · [플랫폼 청사진](./platform-blueprint.md)
 
 이 문서는 다음 세션과 에이전트가 작업 전에 읽는 짧은 지속 컨텍스트다. 상세 Claim과 source of truth를 대체하지 않으며, 서로 충돌하면 fixed-SHA ToolVersion 프로필과 연결된 SourceArtifact/Evidence 및 최신 승인 Decision Log를 우선한다.
 
@@ -53,6 +53,7 @@ verification_ceiling: V2
 4. **Fail-closed state and authority**: atomic claim, lease/generation fencing, cancellation, completion, verification, approval과 external write를 서로 다른 상태·권한으로 둔다. 구현이 없거나 우회 가능하면 보장으로 쓰지 않는다.
 5. **Profiles are immutable-version analyses**: `Tool`, 고정 `ToolVersion`, 시점성 `CurrentUpstreamObservation`, 분석 `AnalysisSnapshot`을 분리한다. fixed version은 latest release와 동의어가 아니다.
 6. **Design-material policy**: 모든 상세 프로필에 `Borrow/Adapt/Avoid/Build`와 다음 검증을 둔다. license와 upstream activity도 고정 버전 정보와 현재 관찰을 섞지 않는다.
+7. **Progressive retrieval and lifecycle**: index→선택 문서→fixed 근거 순으로 조회한다. execution record는 `historical-snapshot`이며 현재 규칙은 active governance와 최신 accepted Decision을 우선한다. 수동 JSON 이중 관리는 하지 않고 생성 JSON·bundler·MCP는 실제 질의·권한 요구가 확인된 뒤 도입한다.
 
 플랫폼 범위는 [`AX-AD-001`](./decisions/AX-AD-001-cross-platform-core.md)로 승인됐다. 이는 Windows/Linux의 구체적인 edition·distribution·version·architecture나 release parity까지 승인했다는 뜻이 아니다.
 
