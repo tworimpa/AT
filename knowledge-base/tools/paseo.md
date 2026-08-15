@@ -71,7 +71,7 @@ Paseo는 사용자가 이미 설치·인증한 여러 coding-agent CLI를 로컬
 ## 강점과 한계
 
 - 강점: multi-provider agent lifecycle, cross-device 관제, worktree-aware workspace, MCP/ACP/SDK/CLI 표면, permission과 schedule을 한 daemon 모델에 모은다.
-- 강점: Windows 전용 executable/ConPTY/`.cmd` 처리와 테스트 경로가 있어 Windows-first 구현 비교에 유용하다.
+- 강점: Windows 전용 executable/ConPTY/`.cmd` 처리와 테스트 경로가 있어 cross-platform core의 Windows native 구현 비교에 유용하다. Linux native 동등성은 별도 근거가 필요하다.
 - 한계: external coding agent 자체를 제공하지 않고 설치·인증된 CLI에 의존한다. adapter별 capability와 버전 호환성을 별도로 확인해야 한다.
 - 한계: local agent는 사용자 권한과 기존 credential로 실행된다. worktree, PTY, E2EE relay는 각각 파일 분리, I/O, 전송 보호이며 process/credential sandbox가 아니다.
 - 한계: AGPL 계열이므로 제품 코드 직접 통합보다 공개 protocol·상태 모델 비교와 clean-room 패턴 참조를 기본으로 둔다.

@@ -92,7 +92,7 @@ OpenHands Agent Canvas는 local/Docker/VM/cloud Agent Server backends를 등록�
 
 ## 강점과 한계
 
-- 강점: backend registry와 UI/process-owner 분리가 Windows-first control plane 구조에 유용하다.
+- 강점: backend registry와 UI/process-owner 분리가 cross-platform control plane 구조에 유용하다.
 - 한계: host-direct 위험, shared CLI config/secret, backend별 capability·isolation parity가 미검증이다.
 
 ## AX 설계 재료

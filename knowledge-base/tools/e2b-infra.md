@@ -94,7 +94,7 @@ Firecracker/node orchestration은 Linux-only 성격이고 fixed self-host 문서
 
 - 강점: remote sandbox의 placement, snapshot lineage, node/runtime 경계, workload identity와 observability를 end-to-end 구조로 참조할 수 있다.
 - 강점: control/data plane 분리와 Firecracker/COW/lazy restore는 remote executor readiness 기준 설계에 구체적이다.
-- 한계: 운영 구성요소와 root authority가 많아 초기 Windows-first desktop platform의 직접 dependency로는 과도하다.
+- 한계: 운영 구성요소와 root authority가 많아 초기 Windows/Linux native local core의 직접 dependency로는 과도하다.
 - 한계: pin은 조사일 current main보다 뒤처졌으며 fixed profile Claim을 최신 head에 자동 전이할 수 없다.
 - 한계: static architecture는 실제 isolation, recovery, performance, SLO를 증명하지 않는다.
 

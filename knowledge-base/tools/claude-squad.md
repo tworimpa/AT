@@ -98,9 +98,9 @@ Claude Squad는 여러 coding-agent CLI를 tmux session과 git worktree에 묶�
 | 구분 | 패턴 | 근거 Claim | AX Need / 적용 조건 |
 |---|---|---|---|
 | Borrow | 작은 session/worktree cockpit | `claude-squad-session-fleet` | `AX-N-CONTROL-VISIBILITY` |
-| Adapt | pause/resume를 typed run state와 receipt로 변형 | `claude-squad-tmux-worktree` | Windows-first executor 필요 |
+| Adapt | pause/resume를 typed run state와 receipt로 변형 | `claude-squad-tmux-worktree` | 공통 contract와 Windows/Linux native executor 필요 |
 | Avoid | autoyes와 terminal text를 승인·완료 증거로 사용 | `claude-squad-autoyes` | `AX-N-HUMAN-APPROVAL` |
-| Build | ConPTY/Job Object adapter, session identity, explicit approval event | 위 Claims | `AD-TYPED-ADAPTER` / `RM-WINDOWS-EXECUTOR` |
+| Build | 공통 executor contract, Windows ConPTY/Job Object 및 Linux PTY/process-group adapter, session identity, explicit approval event | 위 Claims | `AD-TYPED-ADAPTER` / `RM-NATIVE-EXECUTORS` |
 
 회사 규정·데이터 분류·AGPL 사용 경계는 `unknown/decision-needed`다.
 

@@ -20,7 +20,7 @@
 
 - 최소 기록: task/run ID, profile ID/revision, 역할, model provider·slug·version, effort, 시작/종료 시각, base/head SHA, environment fingerprint, 실행 명령·exit code, 변경 artifact, cost/latency 관찰값과 알려진 제한.
 - model/version, 비용, latency를 관찰하지 못했으면 `unknown`으로 남기며 추정값을 사실처럼 기록하지 않는다.
-- 문서 주장 `V1`, fixed-SHA 정적 코드 `V2`, build `V3`, 통제 runtime `V4`, E2E/failure injection `V5`, 운영 `V6`를 분리한다. Windows 정적 경로 `W1`을 실제 Windows 실행 `W2/W3`로 승격하지 않는다.
+- 문서 주장 `V1`, fixed-SHA 정적 코드 `V2`, build `V3`, 통제 runtime `V4`, E2E/failure injection `V5`, 운영 `V6`를 분리한다. Windows와 Linux 등 각 OS의 정적 경로 `P1`을 해당 OS의 실제 실행 `P2/P3`로 승격하지 않는다. 기존 프로필의 `W0~W3`은 Windows 역사 증거로 보존한다.
 - agent 자기보고, green 정적 검사, gitlink 일치, CI는 각각 해당 범위의 증거일 뿐 merge·배포·외부 서비스·production 성공을 자동 증명하지 않는다.
 
 ## 권한과 사람 승인

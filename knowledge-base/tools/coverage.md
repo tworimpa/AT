@@ -18,14 +18,17 @@ verification_ceiling: V2
 
 [지식 베이스 홈](../index.md) · [AX 플랫폼 지속 컨텍스트](../ax-platform-context.md) · [도구 카탈로그](./catalog.md) · [프로필 템플릿](../templates/tool-profile.md) · [스키마와 acceptance gate](../knowledge-graph-schema.md#상세-프로필-acceptance-gate)
 
-이 표는 34개 catalog/gitlink가 상세 ToolVersion 프로필과 필수 섹션으로 연결됐는지를 추적한다. `coverage`는 문서 구조의 완성도이고 `I/V/W`는 Claim의 증거 ceiling이다. 프로필이 `10/10`이어도 build/runtime/E2E가 실행됐다는 뜻이 아니며, `I2/V2`여도 문서 섹션이 완성됐다는 뜻이 아니다.
+이 표는 34개 catalog/gitlink가 상세 ToolVersion 프로필과 필수 섹션으로 연결됐는지를 추적한다. 기존 행의 `coverage`는 schema v2 문서 구조의 완성도이고 `I/V/W`는 당시 Claim의 증거 ceiling이다. 프로필이 `10/10`이어도 build/runtime/E2E가 실행됐다는 뜻이 아니며, `I2/V2`여도 문서 섹션이 완성됐다는 뜻이 아니다.
+
+2026-08-15에 플랫폼 모델은 Windows 전용 `W0~W3`에서 OS별 `P0~P3`을 기록하는 cross-platform template v3로 확장됐다. 아래 34행의 legacy `W` 값은 원본 조사 evidence로 보존하며 Linux 값으로 복제하지 않는다. v3 `platform_evidence` 이관은 현재 0/34이고, 이는 기존 프로필이나 Claim이 삭제·반증됐다는 뜻이 아니라 Windows/Linux별 재판정이 필요하다는 뜻이다.
 
 ## 판정 기준과 현재 합계
 
 - 고정 집합: 부모 `984cac0634b83d10af91d8e1814680816e67c53b`의 `.gitmodules` 34개 path와 mode `160000` gitlink 34개.
 - provenance: 각 행의 `.gitmodules` official upstream, gitlink full SHA와 official upstream fixed-SHA `tree` URL. submodule 본문이 비어 있을 수 있어 부모 repository의 submodule 내부 deep link는 근거로 사용하지 않는다.
-- 필수 섹션 10개: ToolVersion, 기술 구조, Claims, Interface/protocol, 운영·보안 trust boundary, 플랫폼/Windows, Evidence, AX 설계 재료, 도입 판단, 다음 검증.
-- 작성됨 34개: 그중 `10/10 covered` 23개, 현재 템플릿 기준 `partial` 11개. 파일 존재만으로 covered로 세지 않았다.
+- schema v2 필수 섹션 10개: ToolVersion, 기술 구조, Claims, Interface/protocol, 운영·보안 trust boundary, 플랫폼/Windows, Evidence, AX 설계 재료, 도입 판단, 다음 검증.
+- 작성됨 34개: 그중 schema v2 기준 `10/10 covered` 23개, `partial` 11개. 파일 존재만으로 covered로 세지 않았다.
+- schema v3 플랫폼 이관: `platform_evidence.windows`와 `platform_evidence.linux`를 source·result·host/guest scope와 함께 기록한 프로필 0/34. 미확인을 pass로 채우지 않는다.
 - missing/in-progress 0개. 새 9개도 `V2` 정적 근거까지만 작성했으며 실행 검증 완료를 뜻하지 않는다.
 - 공통 실행 경계: build/runtime/E2E 미실행, `V3+` 0건, `W2/W3` 0건. `W1`은 좁은 Windows 정적 근거다.
 
@@ -71,7 +74,8 @@ verification_ceiling: V2
 ## Known gaps and interpretation
 
 - `covered`는 필수 섹션이 존재한다는 뜻일 뿐 Claim 품질이나 실행 적합성의 최종 승인도 아니다. fixed locator, license와 Claim별 근거는 별도 정적 gate에서 계속 검사한다.
-- `partial`은 profile 파일이 있으나 현재 template acceptance의 섹션이 빠졌다는 뜻이다. 기존 분석을 삭제하거나 섹션이 있다고 추정하지 않는다.
+- `partial`은 profile 파일이 있으나 schema v2 template acceptance의 섹션이 빠졌다는 뜻이다. 기존 분석을 삭제하거나 섹션이 있다고 추정하지 않는다.
+- schema v3 이관 여부는 위 v2 `covered/partial`과 독립이다. 이관 전 프로필의 legacy `W`는 유효한 역사적 Windows 조사값이지만 Linux 지원 또는 현재 platform parity를 증명하지 않는다.
 - `missing`은 상세 profile gap이다. catalog와 `I2` pin이 있다는 사실을 프로필 완성으로 세지 않는다.
 - agtx는 Kanban/dependency routing을 보여도 durable lease/generation/atomic claim 근거가 없다. Beads의 atomic-ish identity도 실제 concurrent atomicity 검증 전에는 보장으로 쓰지 않는다.
 - gh-aw의 safety는 read-only/proposal/write 분리를 참고하되 warning/lock 우회와 HTTP/HTTPS proxy 범위를 넘어선 egress 보장을 가정하지 않는다.

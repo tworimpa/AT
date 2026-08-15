@@ -3,7 +3,7 @@ id: tool-<stable-id>
 type: tool-profile
 title: <Tool name>
 status: observed
-profile_schema_version: 2
+profile_schema_version: 3
 tool_key: <gitlink-basename>
 tool_version_id: tool-version:<gitlink-basename>@<full-sha>
 tags:
@@ -18,7 +18,9 @@ upstream_head_observed: <full-sha-or-unknown>
 upstream_checked_at: <YYYY-MM-DD>
 origin_integrity: <I0|I1|I2>
 verification_ceiling: <V0|V1|V2|V3|V4|V5|V6>
-windows_evidence: <W0|W1|W2|W3>
+platform_evidence:
+  windows: <P0|P1|P2|P3>
+  linux: <P0|P1|P2|P3>
 version_kind: <commit|tag|image|api>
 version_ref: <full-sha-tag-digest-or-revision>
 parent_repo_head: <full-parent-commit>
@@ -45,6 +47,7 @@ analysis_snapshot_date: <YYYY-MM-DD>
 | 로컬 gitlink 또는 artifact | <repository-relative link> |
 | 조사일 | <YYYY-MM-DD> |
 | 출처 무결성 | <I grade와 근거> |
+| 플랫폼 증거 | <windows와 linux 각각의 P grade, result, host/guest 범위; 미확인은 P0/unknown> |
 | license | <fixed-SHA LICENSE/NOTICE locator, component 예외와 재사용 주의> |
 | provenance limitation | <local body를 읽었는지, official fixed tree/API만 읽었는지, 미수행 범위> |
 | source 관리 | <fixed-SHA submodule 또는 versioned manifest와 선택 이유> |
@@ -64,9 +67,9 @@ analysis_snapshot_date: <YYYY-MM-DD>
 
 ## Claims
 
-| Claim ID | 종류 | 검증 가능한 주장 | 공식 최신 근거·조사일 | fixed-SHA SourceArtifact | I | V | W | 결과·한계 |
+| Claim ID | 종류 | 검증 가능한 주장 | 공식 최신 근거·조사일 | fixed-SHA SourceArtifact | I | V | 플랫폼별 P | 결과·한계 |
 |---|---|---|---|---|---|---|---|---|
-| `<claim-id>` | <capability|architecture|interface|security|platform|limitation> | <한 문장> | <canonical URL+heading+date 또는 없음> | <40-SHA permalink+file line/anchor> | `<I0~I2>` | `<V0~V6>` | `<W0~W3>` | <pass/fail/partial/unknown과 limitation> |
+| `<claim-id>` | <capability|architecture|interface|security|platform|limitation> | <한 문장> | <canonical URL+heading+date 또는 없음> | <40-SHA permalink+file line/anchor> | `<I0~I2>` | `<V0~V6>` | `windows:<P0~P3>; linux:<P0~P3>` | <플랫폼별 pass/fail/partial/unknown과 limitation> |
 
 ## Interface와 protocol
 
@@ -80,11 +83,12 @@ analysis_snapshot_date: <YYYY-MM-DD>
 - 격리·credential·network·persistence 경계: <confirmed source와 unknown 분리>
 - UI·agent 자기보고·upstream CI는 derived projection 또는 V1/V2 source일 뿐 완료 증거가 아니다.
 
-## 플랫폼과 Windows
+## 플랫폼
 
-- control client, agent host, sandbox guest/server를 분리해 기록한다.
-- WSL·Docker·remote Linux guest를 native Windows runtime으로 표현하지 않는다.
-- `W1+`에는 Windows 전용 fixed-SHA locator 또는 실행 artifact가 필요하다.
+- control client, Windows/Linux native agent host, WSL·container·sandbox guest/server를 분리해 기록한다.
+- WSL·container·remote Linux guest를 Windows native 또는 Linux host-native runtime으로 표현하지 않는다.
+- 플랫폼별 `P1+`에는 해당 OS의 전용 또는 명시적으로 portable한 fixed-SHA locator가 필요하고, `P2+`에는 그 OS의 environment fingerprint와 실행 artifact가 필요하다.
+- 기존 프로필의 `windows_evidence: W0~W3`을 이관하면 원본 값을 변경 이력에 보존하고 Windows `P0~P3`으로만 매핑한다.
 
 ## Evidence
 
@@ -105,7 +109,7 @@ analysis_snapshot_date: <YYYY-MM-DD>
 | 구분 | 패턴·capability | 근거 Claim | AX Need / 적용 조건 |
 |---|---|---|---|
 | Borrow | <직접 참고할 패턴> | `<claim-id>` | `<ax-need-id>` |
-| Adapt | <조건부로 변형할 패턴> | `<claim-id>` | <조직·보안·Windows 조건> |
+| Adapt | <조건부로 변형할 패턴> | `<claim-id>` | <조직·보안·Windows/Linux 조건> |
 | Avoid | <가져오지 않을 패턴·위험> | `<claim-id>` | <위험과 fail-closed 이유> |
 | Build | <우리 플랫폼에서 직접 구현할 capability> | `<claim-id>` | `<architecture-decision 또는 roadmap item>` |
 
@@ -119,9 +123,9 @@ analysis_snapshot_date: <YYYY-MM-DD>
 
 ## 다음 검증
 
-| Item ID | 대상 Claim | 목표 V/W | 환경 | 명령·시나리오 | pass 기준 | 보존 artifact | 승인·의존성 |
+| Item ID | 대상 Claim | 목표 V/P | 환경 | 명령·시나리오 | pass 기준 | 보존 artifact | 승인·의존성 |
 |---|---|---|---|---|---|---|---|
-| `<item-id>` | `<claim-id>` | `<V3/W2 등>` | <fingerprint 계획> | <재현 가능한 단계> | <관찰 가능한 결과> | <log/report/path> | <human/external/cost gate> |
+| `<item-id>` | `<claim-id>` | `<V3/windows:P2 또는 V4/linux:P2 등>` | <OS/version/architecture/host·guest fingerprint 계획> | <재현 가능한 단계> | <관찰 가능한 결과> | <log/report/path> | <human/external/cost gate> |
 
 ## 관계
 

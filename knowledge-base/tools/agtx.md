@@ -94,7 +94,7 @@ agtx는 SQLite task board를 TUI로 보여 주고 dependency gate를 거쳐 task
 ## 플랫폼과 Windows
 
 - `W0`: fixed source의 핵심 path가 tmux와 POSIX shell을 요구한다. WSL/remote Linux에서 호출 가능하다는 사실은 native Windows executor 증거가 아니다.
-- Windows-first AX에서는 ConPTY + Job Object process tree, PowerShell/argv escaping, CRLF/long path, credential broker를 별도 adapter/executor로 구현해야 한다.
+- Cross-platform AX에서는 공통 executor contract 아래 Windows의 ConPTY·Job Object·PowerShell/argv·CRLF/long path와 Linux의 PTY·process group/signal·permission/symlink 경계를 각각 구현·검증해야 한다.
 
 ## Evidence
 
@@ -118,7 +118,7 @@ agtx는 SQLite task board를 TUI로 보여 주고 dependency gate를 거쳐 task
 |---|---|---|---|
 | Borrow | board state와 dependency graph를 같은 task identity에 연결하는 TUI/MCP projection | `agtx-kanban-worktree-tmux`, `agtx-mcp-routing` | `AX-N-CONTROL-VISIBILITY` |
 | Adapt | transition queue를 durable outbox/inbox와 idempotency key로 변형 | `agtx-narrow-request-claim` | multi-process restart와 감사 보존 필요 |
-| Avoid | missing dependency를 satisfied로 처리하거나 worktree/tmux를 sandbox로 간주 | `agtx-dependency-gate`, `agtx-posix-runtime` | fail-closed와 Windows-first 위반 |
+| Avoid | missing dependency를 satisfied로 처리하거나 worktree/tmux를 sandbox로 간주 | `agtx-dependency-gate`, `agtx-posix-runtime` | fail-closed와 플랫폼 capability 명시 원칙 위반 |
 | Build | atomic task claim + expiring lease + renewal + monotonic generation fencing + stale write rejection | `agtx-narrow-request-claim` | `AD-LEASE-FENCING` / `RM-CORE-SCHEDULER` |
 
 회사 업종, 데이터 분류, 규정, 승인자, 망분리, SCM credential scope는 `unknown/decision-needed`이며 이 프로필에서 가정하지 않는다.

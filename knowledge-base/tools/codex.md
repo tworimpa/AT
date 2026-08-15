@@ -109,7 +109,7 @@ OpenAI Codex는 로컬 repository에서 명령·파일 변경·도구 호출을 
 ## 강점과 한계
 
 - 강점: `codex-appserver-lifecycle`과 `codex-turn-policy`는 primary worker adapter의 structured lifecycle·approval surface로 적합하다.
-- 강점: `codex-windows-sandbox-source`는 Windows-first local executor의 직접 비교 기준이다.
+- 강점: `codex-windows-sandbox-source`는 cross-platform core 안에서 Windows native executor의 직접 비교 기준이다. Linux native 근거는 별도 Claim과 fixture가 필요하다.
 - 한계: `codex-worker-not-verifier`처럼 completed event가 correctness/merge authority를 증명하지 않는다.
 - 한계: transport와 feature 일부가 experimental이며 provider/API availability는 fixed repository source와 별도다.
 

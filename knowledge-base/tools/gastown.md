@@ -95,7 +95,7 @@ Gas Town은 Mayor/Deacon/Witness/Refinery/Polecat 역할, Beads/Dolt 작업 상�
 ## 플랫폼과 Windows
 
 - 최종 등급은 `W0`. native Windows build fragments와 ACP process path는 있지만 공식 install boundary가 full tmux-backed workflow에 WSL/Linux를 요구한다.
-- Windows-first AX baseline은 Gas Town 전체를 native dependency로 삼지 않고 role hierarchy와 ledger/merge patterns만 clean-room reference로 사용한다.
+- Cross-platform AX baseline은 Gas Town 전체를 native dependency로 삼지 않고 role hierarchy와 ledger/merge patterns만 clean-room reference로 사용한다.
 
 ## Evidence
 
@@ -119,8 +119,8 @@ Gas Town은 Mayor/Deacon/Witness/Refinery/Polecat 역할, Beads/Dolt 작업 상�
 |---|---|---|---|
 | Borrow | coordinator/worker/watchdog/verifier-merger 역할 분리와 two-level ledger | `gt-role-orchestration`, `gt-persistent-ledger` | `AX-N-ROLE-SEPARATION`, `AX-N-DURABLE-STATE` |
 | Adapt | self-managed worker completion을 independent verifier와 merge approval 뒤 proposal로 제한 | `gt-refinery-merge` | 조직 승인·SCM 정책이 결정돼야 함 |
-| Avoid | WSL/tmux full stack을 Windows native core로 채택하거나 shared ledger status를 proof로 사용 | `gt-native-windows-limit`, `gt-windows-components-not-proof` | Windows-first 및 evidence 분리 위반 |
-| Build | native Windows control plane/executor, generation-fenced ownership, append-only evidence와 scoped committer | `gt-worktree-tmux`, `gt-refinery-merge` | `AD-WINDOWS-EXECUTOR` / `RM-CORE-CONTROL-PLANE` |
+| Avoid | WSL/tmux full stack을 Windows native core로 채택하거나 shared ledger status를 proof로 사용 | `gt-native-windows-limit`, `gt-windows-components-not-proof` | 플랫폼 scope 및 evidence 분리 위반 |
+| Build | 공통 control plane/executor contract, Windows/Linux native lifecycle, generation-fenced ownership, append-only evidence와 scoped committer | `gt-worktree-tmux`, `gt-refinery-merge` | `AD-NATIVE-EXECUTORS` / `RM-CORE-CONTROL-PLANE` |
 
 회사 업종, 데이터 분류, 규정, 승인 체계, 망분리, credential/merge authority는 모두 `unknown/decision-needed`다.
 

@@ -11,13 +11,13 @@ AI 코딩 개발 환경을 빠르게 개선하려면 하나의 거대한 에이�
 1. **의도 계층**: spec, issue, acceptance criteria와 dependency graph를 버전 관리한다.
 2. **control plane**: ready queue, atomic claim, concurrency budget, 질문·승인, watchdog, evidence projection, merge lane을 담당한다.
 3. **agent adapter**: Codex, Claude, Gemini, Cursor 등 공급자별 launch/resume/steer/evidence 차이를 흡수한다.
-4. **executor**: Windows ConPTY·로컬 worktree·WSL/SSH와 E2B/Runloop/Modal 같은 원격 sandbox를 같은 수명주기 계약으로 제공한다.
+4. **executor**: Windows native ConPTY/Job Object와 Linux native PTY/process group·cgroup, 로컬 worktree, WSL/SSH와 E2B/Runloop/Modal 같은 원격 sandbox를 공통 수명주기 계약 아래 플랫폼별 capability profile로 제공한다.
 
-가장 중요한 제품 차별점은 agent 수가 아니라 **낮은 시작 지연**, **충돌 없는 병렬성**, **거짓 완료를 막는 증거**, **Windows 1급 지원**, **로컬과 클라우드 사이의 이동성**이다.
+가장 중요한 제품 차별점은 agent 수가 아니라 **낮은 시작 지연**, **충돌 없는 병렬성**, **거짓 완료를 막는 증거**, **Windows와 Linux native 1급 지원**, **로컬과 클라우드 사이의 이동성**이다.
 
 권장 조합은 다음과 같다.
 
-- **MVP core**: Windows-first event kernel + worktree/ConPTY executor + ACP primary adapter + PTY fallback. Orca/Agent Orchestrator의 관제, Emdash의 staged provisioning, Beads/Taskplane의 claim·DAG, gh-aw의 proposal/write 권한 분리를 결합한다. Container Use의 branch/worktree+container 패턴은 선택형 local-container executor로 흡수한다.
+- **MVP core**: cross-platform event kernel + 공통 executor contract + Windows native ConPTY/Job Object 및 Linux native PTY/process-group executor + ACP primary adapter + PTY fallback. Orca/Agent Orchestrator의 관제, Emdash의 staged provisioning, Beads/Taskplane의 claim·DAG, gh-aw의 proposal/write 권한 분리를 결합한다. Container Use의 branch/worktree+container 패턴은 host-native executor와 구분되는 선택형 local-container provider로 흡수한다.
 - **Remote A/B pilot**: E2B와 Vercel Sandbox만 먼저 같은 conformance suite로 비교한다. self-host E2B Infra, Runloop, Modal, Cloudflare는 workload가 확인된 뒤 확장한다.
 - **Workflow connector pilot**: GitHub Actions/gh-aw를 scheduled/issue-triggered automation에 쓰고 Linear와 Sentry는 task/incident source connector로만 둔다. 외부 서비스의 상태를 kernel source of truth로 만들지 않는다.
 - **Review pilot**: Copilot Review와 CodeRabbit/Qodo/Greptile 중 하나를 비교하되 advisory evidence로만 수집한다. deterministic test, independent verifier, human approval을 대체하지 않는다.
@@ -203,7 +203,7 @@ provider가 지원하지 않는 capability는 조용히 무시하지 않고 `uns
 
 따라서 신규 도구는 기존 제품과 똑같은 “agent tab manager”보다 다음 조합에 집중해야 한다.
 
-- Windows-first local kernel과 cloud sandbox adapter
+- Windows/Linux native local kernel과 cloud sandbox adapter
 - spec/issue/run/evidence를 잇는 durable graph
 - 단계형 provisioning과 snapshot 기반 빠른 fan-out
 - atomic claim, waves/lanes, resource lease, merge lane

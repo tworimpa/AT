@@ -99,7 +99,7 @@ Warren은 agent run을 runtime-provider contract 뒤의 local sandbox 또는 Kub
 ## 플랫폼과 Windows
 
 - `W0`: local topology는 Linux bwrap/Unix socket이고 hosted path는 Kubernetes pod다. Windows control client 가능성과 Windows executor/runtime를 구분한다.
-- fixed source에 native Windows sandbox/executor path 또는 실행 artifact가 없어 Windows-first core implementation 후보가 아니라 governed sandbox/control-plane reference로만 사용한다.
+- fixed source에 native Windows sandbox/executor path 또는 실행 artifact가 없어 cross-platform native core 전체의 구현 후보가 아니라 governed Linux sandbox/control-plane reference로만 사용한다. Linux host runtime도 이 조사에서는 실행하지 않았다.
 
 ## Evidence
 

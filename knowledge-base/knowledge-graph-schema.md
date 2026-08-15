@@ -1,14 +1,16 @@
 ---
-id: knowledge-graph-schema-v1
+id: knowledge-graph-schema-v2
 type: governance
+supersedes: knowledge-graph-schema-v1
 title: 지식 베이스 작성 규칙과 최소 지식 그래프 스키마
 status: active
-schema_version: 1
+schema_version: 2
 tags:
   - knowledge-base
   - knowledge-graph
   - provenance
   - evidence
+  - cross-platform
 observed_at: 2026-08-14
 source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 ---
@@ -22,7 +24,7 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 1. `Tool`과 immutable `ToolVersion`을 분리한다. 새 upstream HEAD가 나타나도 이전 지식을 덮어쓰지 않는다.
 2. 기능과 한계는 단순 속성이 아니라 검증 가능한 `Claim`으로 기록한다.
 3. Claim마다 `SourceArtifact`와 가능한 경우 `Evidence`를 연결한다.
-4. provenance와 검증 등급은 node뿐 아니라 edge에도 둔다. 같은 ToolVersion의 ACP, Windows, runtime 주장은 각각 다른 근거와 등급을 가질 수 있다.
+4. provenance와 검증 등급은 node뿐 아니라 edge에도 둔다. 같은 ToolVersion의 ACP, Windows, Linux, runtime 주장은 각각 다른 근거와 등급을 가질 수 있다.
 5. 정적 코드 `V2`를 build/runtime/E2E `V3~V5`로 자동 승격하지 않는다.
 6. 실패와 반증 evidence를 삭제하지 않고 `unknown`, `partial`, `fail`을 구분한다.
 7. secret 원문, credential handle 내부값과 private endpoint는 지식 베이스에 저장하지 않는다.
@@ -46,6 +48,7 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 | ExecutionRun | Profile이 해석된 실제 실행 | run ID, role, profile ID/revision, 실제 model/version·effort, environment fingerprint, cost/latency observation |
 | Integration | protocol·adapter·state interface | ACP, MCP, JSON-RPC, CLI, PTY, HTTP/SSE, WebSocket, GitHub, SQLite |
 | SecurityOperationalRequirement | 보안·운영 조건 | isolation, secret audience/redaction, egress, retention, readiness, fencing, recovery, cost/SLO |
+| PlatformCapabilityProfile | OS/host/guest별 실행 capability와 검증 상태 | platform, edition/distribution, version, architecture, shell/service manager, host/guest scope, `P0~P3`, result |
 | Claim | 참·거짓·부분 여부를 검증할 문장 | subject, predicate, object/value, scope, status |
 | SourceArtifact | Claim의 출처 | repo-relative path 또는 upstream permalink, line/anchor, artifact kind, license |
 | Evidence | 실제 검증 결과 | method, result, artifact locator, environment fingerprint, limitations |
@@ -72,6 +75,7 @@ source_parent_commit: 55227696af0ba94b934187876c6db6669dd2b574
 | `Profile CONFIGURES ExecutionRun` | 선택 정책과 실제 실행 해석 연결 |
 | `ExecutionRun PRODUCES Evidence` | 실제 model/effort/environment와 검증 artifact 연결 |
 | `Integration CONNECTS ToolVersion/Executor` | 연결 가능한 runtime 또는 executor |
+| `ToolVersion/Executor HAS_PLATFORM_PROFILE PlatformCapabilityProfile` | Windows/Linux native와 WSL/container/remote guest의 capability·증거 범위 연결 |
 | `ToolVersion SATISFIES/REQUIRES/VIOLATES Requirement` | 보안·운영 조건에 대한 상태 |
 | `Claim ABOUT node/edge` | 검증 대상 지정 |
 | `Claim DERIVED_FROM SourceArtifact` | 주장 출처 연결 |
@@ -96,7 +100,7 @@ id: tool-version-orca-e7b8526
 type: ToolVersion
 name: Orca e7b8526
 status: observed
-tags: [control-plane, windows-first]
+tags: [control-plane, cross-platform]
 valid_from: null
 valid_to: null
 observed_at: 2026-08-14
@@ -110,7 +114,15 @@ provenance:
 verification:
   grade: V2
   result: partial
-  platform_scope: windows-source-paths
+  platform_scope:
+    windows:
+      grade: P1
+      host_or_guest: host
+      result: partial
+    linux:
+      grade: P0
+      host_or_guest: host
+      result: unknown
   environment_fingerprint: null
   confidence: medium
   limitations: dependencies not installed; build and runtime not executed
@@ -148,22 +160,24 @@ Markdown frontmatter에는 자주 탐색하는 scalar와 tag만 두고, 상세 C
 
 `I2`는 “무엇을 읽었는지”를 확정할 뿐 기능이 작동함을 증명하지 않는다.
 
-### Windows 증거 `W0~W3`
+### 플랫폼별 증거 `P0~P3`
 
 | 등급 | 의미 |
 |---|---|
-| `W0` | 문서 주장, 간접 지원 또는 미확인; Windows 전용 구현 근거 없음 |
-| `W1` | Windows code/config/path를 고정 소스에서 정적으로 확인 |
-| `W2` | 명시한 Windows 환경에서 실제 build/runtime를 수행하고 evidence 보존 |
-| `W3` | Windows 회귀 suite가 반복 실행되며 process tree, CRLF, long path 등 실패 경계를 포함 |
+| `P0` | 해당 플랫폼 지원이 문서 주장·간접 경로이거나 미확인; 플랫폼별 immutable 구현 근거와 실행 artifact가 없음 |
+| `P1` | 해당 플랫폼의 전용 또는 명시적으로 portable한 code/config/test path를 고정 소스에서 정적으로 확인 |
+| `P2` | 명시한 OS/edition·distribution/version/architecture 환경에서 build 또는 runtime을 실제 수행하고 명령·결과·artifact를 보존 |
+| `P3` | 해당 플랫폼 회귀 suite가 반복 실행되며 process tree/signal, path·case·symlink, newline·permission 등 플랫폼 failure boundary를 포함 |
 
-Windows에서 remote API를 호출할 수 있다는 사실과 remote Linux sandbox 자체가 Windows runtime이라는 주장을 구분한다.
+`P0~P3`은 `windows`, `linux` 등 플랫폼마다 별도로 기록하고 `pass|fail|partial|unknown` 결과를 함께 둔다. `P2`가 build인지 runtime인지는 기능 축 `V3/V4`가 구분하며, 플랫폼 등급만으로 기능 등급을 추정하지 않는다. host OS, guest OS와 control client도 분리해 WSL·container·remote Linux를 Windows native 또는 Linux host-native 증거로 바꾸어 쓰지 않는다.
+
+기존 ToolVersion 프로필의 `W0~W3`은 조사 당시 Windows 전용 evidence axis로 보존한다. 의미는 각각 `platform=windows`의 `P0~P3`에 대응하지만, 이관 시 원본 값과 변환 시점을 기록하며 기존 분석을 일괄 덮어쓰지 않는다. Linux에는 legacy 값을 복제하지 않고 새로운 source 또는 실행 artifact로 판정한다.
 
 ## Claim과 Evidence 예시
 
 ```text
 tool_version:orca@e7b8526
-  --PROVIDES {grade: V2, origin: I2, windows: W1}
+  --PROVIDES {grade: V2, origin: I2, platforms: {windows: P0, linux: P0}}
   --> capability:structured-orchestration
 
 tool_version:agentapi@9ff117e
@@ -196,7 +210,7 @@ source-of-truth 우선순위는 다음과 같다.
 - 도구 프로필은 [템플릿](./templates/tool-profile.md)의 frontmatter와 섹션 순서를 따른다.
 - 내부 링크는 repository-relative Markdown link를 사용해 Obsidian과 GitHub 모두에서 연다.
 - ToolVersion에는 full SHA/tag/digest와 조사일을 반드시 기록한다.
-- Claim에는 source locator와 `V/I/W`를 기록하고 미실행 항목은 빈 evidence 또는 `unknown`으로 표시한다. `V2` Claim은 40자리 SHA를 포함한 파일 permalink와 가능한 가장 좁은 line/heading anchor가 필요하다.
+- Claim에는 source locator와 `I/V`, OS별 `P`를 기록하고 미실행 항목은 빈 evidence 또는 `unknown`으로 표시한다. `V2` Claim은 40자리 SHA를 포함한 파일 permalink와 가능한 가장 좁은 line/heading anchor가 필요하다.
 - 역사 자료를 삭제하거나 현재 상태로 덮어쓰지 않는다. 새 ToolVersion과 `SUPERSEDES`를 추가하고 이전 Claim은 `stale`로 표시한다.
 - 생성 파일을 도입하면 Markdown → JSON 변환은 결정론적이어야 하며 생성 JSON은 수동 편집하지 않는다.
 
@@ -206,9 +220,9 @@ source-of-truth 우선순위는 다음과 같다.
 2. **license gate**: root와 component license/NOTICE/rider를 읽는다. 사용·분석 제한이 있으면 clone·분석·게시를 중단하고 이유만 기록한다.
 3. **소스 보존 방식 결정**: official upstream, license/activity, 예상 설계 영향, clone 크기·비용을 기록한다. adapter·reference implementation·핵심 설계에 직접 영향을 주면 official upstream + fixed SHA gitlink submodule을 기본으로 하고, 비교·시장·문서 조사면 versioned manifest + source URL + Claim/Evidence를 기본으로 한다. 필요할 때만 shallow clone 또는 remote fixed-SHA inspection을 수행한다.
 4. **immutable pin**: tag가 아니라 실제 commit SHA/image digest/API revision을 확보한다. submodule이면 gitlink·`.gitmodules`·checkout SHA 일치로 `I2`를 만든다. manifest-only면 공식 immutable URL과 checksum/commit API 등 재현 가능한 pin을 남기고 충족한 범위에서만 `I2`를 부여한다.
-5. **프로필 생성**: [도구 프로필 템플릿](./templates/tool-profile.md)을 복사해 Tool과 ToolVersion, 역할, Integration, Windows 상태, `Borrow/Adapt/Avoid/Build`를 기록한다.
+5. **프로필 생성**: [도구 프로필 템플릿](./templates/tool-profile.md)을 복사해 Tool과 ToolVersion, 역할, Integration, Windows/Linux 플랫폼 상태, `Borrow/Adapt/Avoid/Build`를 기록한다.
 6. **Claim 분해**: “지원한다”를 기능·한계·platform·surface별 Claim으로 나누고 각 Claim에 공식 permalink나 repo-relative source locator를 붙인다.
-7. **정적 검토**: 문서만이면 `V1`, 고정 source/config/test 확인까지 했으면 Claim별 `V2`로 기록한다. Windows 전용 code path가 있을 때만 `W1`을 준다.
+7. **정적 검토**: 문서만이면 `V1`, 고정 source/config/test 확인까지 했으면 Claim별 `V2`로 기록한다. 플랫폼별 전용 또는 명시적으로 portable한 fixed-SHA path가 있을 때만 해당 OS에 `P1`을 주고 다른 OS로 복제하지 않는다.
 8. **카탈로그 연결**: [도구 카탈로그](./tools/catalog.md)의 역할군과 도입 판단을 갱신하고 청사진의 선택·평가·보류 관계에 연결한다.
 9. **검증 계획**: build는 `V3`, runtime은 `V4`, E2E/failure injection은 `V5`로 별도 RoadmapItem과 acceptance를 만든다. 실행하지 않은 단계는 pass로 기록하지 않는다.
 10. **정적 gate**: 중복 ID, 깨진 상대 링크, SHA mismatch, license 누락, 출처 없는 Claim, artifact 없는 grade 승격, stale 조사일을 검사한다.
@@ -234,9 +248,10 @@ property graph와 RDF/SHACL 중 장기 표현은 아직 결정하지 않는다. 
 ## 상세 프로필 acceptance gate
 
 1. `.gitmodules` path, mode `160000` gitlink, catalog `tool_key`, profile `tool_key`가 34개 일대일이고 URL·full SHA가 일치한다.
-2. 목적, 공식 최신 관찰, license/NOTICE, 기술 구조, Claim, interface/protocol, trust boundary, 플랫폼/Windows, 강점·한계, 도입 판단과 다음 검증 섹션이 비어 있지 않다.
+2. 목적, 공식 최신 관찰, license/NOTICE, 기술 구조, Claim, interface/protocol, trust boundary, 플랫폼, 강점·한계, 도입 판단과 다음 검증 섹션이 비어 있지 않다.
 3. capability, interface, trust/security, platform, limitation Claim이 각각 근거를 가지며 각 Claim의 `I/V/W`를 독립 판정한다.
-4. 실행 명령·exit, environment fingerprint와 보존 artifact가 모두 없으면 `V3+` 또는 `W2+`로 승격하지 않는다. upstream CI, test 파일 존재, UI 상태와 agent 자기보고도 같은 제한을 받는다.
+4. 실행 명령·exit, environment fingerprint와 보존 artifact가 모두 없으면 `V3+` 또는 플랫폼별 `P2+`로 승격하지 않는다. upstream CI, test 파일 존재, UI 상태와 agent 자기보고도 같은 제한을 받는다.
 5. 도입 판단은 Claim ID, license/trust/platform blocker와 재검토 gate를 참조한다.
 6. 미검증 adoption-critical Claim마다 목표 등급, 환경, 시나리오, pass 기준, artifact와 승인 조건이 있는 다음 검증 항목을 둔다.
 7. 중복 ID, 깨진 상대 링크, moving-branch `V2` URL, catalog/profile 역링크, frontmatter enum/date와 SHA drift를 정적 검사한다.
+8. cross-platform profile은 최소한 `windows`와 `linux` 각각의 `P` grade, result, host/guest scope와 limitation을 가진다. `P1+`에는 OS별 source가, `P2+`에는 environment fingerprint와 실행 artifact가 있어야 하며 한 OS의 값을 다른 OS로 복제하지 않는다.
