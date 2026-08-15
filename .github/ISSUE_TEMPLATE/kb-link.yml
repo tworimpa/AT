@@ -1,0 +1,29 @@
+name: KB 링크 추가
+description: 모바일에서 지식 베이스 분석 대상 링크를 제출합니다.
+title: "[KB 링크] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        공개 HTTPS 링크만 제출해 주세요. 저장소 OWNER, MEMBER 또는 COLLABORATOR가
+        제출한 Issue만 자동 분석됩니다. KB에 추가할 가치가 있으면 검토용 PR을 만들고,
+        추가하지 않으면 그 사유를 이 Issue에 댓글로 남깁니다. 자동 병합은 하지 않습니다.
+        링크와 메모는 Gemini API로 전송되므로 비밀·개인정보·사내 민감정보를 입력하지 마세요.
+
+  - type: input
+    id: url
+    attributes:
+      label: 링크
+      description: Gemini가 읽고 분석할 공개 HTTPS URL입니다.
+      placeholder: https://example.com/article
+    validations:
+      required: true
+
+  - type: textarea
+    id: note
+    attributes:
+      label: 메모
+      description: 이 링크가 중요한 이유나 확인할 질문을 적어 주세요.
+      placeholder: AX 플랫폼의 권한 모델과 비교해 주세요.
+    validations:
+      required: false

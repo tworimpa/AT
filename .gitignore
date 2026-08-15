@@ -9,3 +9,12 @@ Thumbs.db
 .vscode/
 *.tmp
 *.log
+
+# Gemini CLI project settings and temporary intake payloads.
+.gemini/
+
+# Temporary credentials created by Google GitHub Actions.
+gha-creds-*.json
+
+# Gemini CLI execution outputs.
+gemini-artifacts/
