@@ -7,7 +7,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import kb_link_intake
 
@@ -87,6 +87,88 @@ class PrepareTests(unittest.TestCase):
             self.assertEqual(payload["source_id"], "issue-42")
             self.assertIn("record_name", outputs)
             self.assertIn("kb-link-issue-42.md", outputs)
+
+
+class AnalyzeTests(unittest.TestCase):
+    def test_html_extractor_omits_script_and_style(self) -> None:
+        parser = kb_link_intake._TextExtractor()
+        parser.feed("<h1>제목</h1><script>secret()</script><style>x{}</style><p>본문</p>")
+        self.assertEqual(parser.parts, ["제목", "본문"])
+
+    @patch("kb_link_intake.socket.getaddrinfo")
+    def test_rejects_hostname_resolving_to_private_address(self, resolve) -> None:
+        resolve.return_value = [(2, 1, 6, "", ("10.0.0.1", 443))]
+        with self.assertRaisesRegex(kb_link_intake.IntakeError, "non-public"):
+            kb_link_intake.validate_resolved_host("https://example.com/post")
+
+    def test_analyze_calls_gemini_once_and_keeps_key_out_of_url(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            intake_path = root / ".gemini" / "kb-link-intake.json"
+            response_path = root / "gemini-artifacts" / "response.json"
+            (root / "knowledge-base").mkdir(parents=True)
+            intake_path.parent.mkdir(parents=True)
+            intake_path.write_text(
+                json.dumps(
+                    {
+                        "source_url": "https://example.com/post",
+                        "note": "검토",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (root / "knowledge-base" / "tools").mkdir()
+            for name in (
+                "ax-platform-context.md",
+                "knowledge-graph-schema.md",
+                "index.md",
+            ):
+                (root / "knowledge-base" / name).write_text("context", encoding="utf-8")
+            (root / "knowledge-base" / "tools" / "catalog.md").write_text(
+                "catalog", encoding="utf-8"
+            )
+
+            decision = RenderTests.decision()
+            api_body = json.dumps(
+                {
+                    "candidates": [
+                        {
+                            "content": {
+                                "parts": [
+                                    {"text": json.dumps(decision, ensure_ascii=False)}
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ).encode("utf-8")
+            response = MagicMock()
+            response.__enter__.return_value = response
+            response.read.return_value = api_body
+            opener = MagicMock()
+            opener.open.return_value = response
+
+            with (
+                patch.object(kb_link_intake, "REPO_ROOT", root),
+                patch.object(kb_link_intake, "INTAKE_PATH", intake_path),
+                patch.object(kb_link_intake, "fetch_source_text", return_value="본문"),
+                patch.object(kb_link_intake, "build_opener", return_value=opener),
+                patch.dict(
+                    os.environ,
+                    {"GEMINI_API_KEY": "test-secret", "GEMINI_MODEL": "gemini-test"},
+                    clear=True,
+                ),
+            ):
+                kb_link_intake.analyze_once(response_path)
+
+            opener.open.assert_called_once()
+            request = opener.open.call_args.args[0]
+            self.assertNotIn("test-secret", request.full_url)
+            self.assertEqual(request.get_header("X-goog-api-key"), "test-secret")
+            self.assertEqual(
+                json.loads(response_path.read_text(encoding="utf-8"))["response"],
+                json.dumps(decision, ensure_ascii=False),
+            )
 
 
 class RenderTests(unittest.TestCase):
