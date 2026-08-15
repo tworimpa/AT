@@ -107,3 +107,22 @@ PR #4 재검토에서 자동화가 `execution-record` 하나만 만들고 실제
   적용·재검증해 profile과 index가 한 PR에서 atomic하게 review되도록 한다.
 - 링크 intake별 execution record 생성은 중단한다. 이 구현 기록은 자동화 자체의 변경·실패
   경계를 보존하는 별도 실행 증거다.
+
+## 지식 후보 전환 E2E 관찰
+
+- 구현 commit `38148bedd92d395f6472454e0426d410454b4784`을 `main`에 push했다.
+- 실행 기록만 포함하던 PR #4를 닫고 remote branch
+  `automation/kb-link-issue-2-31894056860`을 삭제했다.
+- Issue #2 재오픈 run `31894744032` attempt 1은 기존 repository variable
+  `GEMINI_MODEL=gemini-3.7-flash`가 workflow 기본값을 override한 상태에서 Gemini HTTP
+  `503`으로 종료됐다.
+- repository variable을 `gemini-3.5-flash`로 변경하고 failed jobs만 재실행한 attempt 2는
+  Gemini HTTP `429`로 종료됐다. 두 attempt 모두 모델 응답 전 실패해 profile·patch·PR
+  경로는 GitHub-hosted runner에서 실행되지 않았다.
+- 공식 upstream 검증 함수는 로컬 network read에서 `bholmesdev/hubble.md`, branch `main`,
+  HEAD `c4235c9eeae77958d966d2fe7c44ce91e5a89aca`, MIT, homepage `https://hubble.md`를
+  확인했다. 최초 commits endpoint는 반복 `504`여서 immutable branch-ref endpoint로
+  교체한 뒤 exit `0`을 관찰했다.
+- 따라서 현재 증거는 local static/fixture `V2`와 upstream metadata network observation
+  범위다. quota 초기화 뒤 Issue #2를 한 번 재실행해 profile + index/catalog/coverage patch,
+  PR과 Issue comment를 확인하기 전에는 E2E 완료로 표현하지 않는다.
