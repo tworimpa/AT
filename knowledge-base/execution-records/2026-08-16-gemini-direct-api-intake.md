@@ -32,7 +32,7 @@ Gemini `generateContent` REST 요청을 정확히 한 번만 구성하도록 전
 | model provider·slug·version | OpenAI / `unknown` / `unknown` |
 | requested/actual effort | `high` / `unknown` |
 | 시작·종료 시각 | exact start `unknown`; local validation `2026-08-16T00:48:09+09:00` 이후 |
-| base/head SHA | `6a1dc930bd75d8d896f854e9ed8fc837c84d9948` / uncommitted workspace |
+| base/first implementation SHA | `6a1dc930bd75d8d896f854e9ed8fc837c84d9948` / `47b3c8489ed3180bbeed1def9ddb47bc07e075c7` |
 | environment | Linux `6.18.33.2-microsoft-standard-WSL2` x86_64; Python `3.14.4`; Git `2.53.0` |
 | cost/latency | `unknown` / local checks only |
 
@@ -67,12 +67,24 @@ Gemini `generateContent` REST 요청을 정확히 한 번만 구성하도록 전
 
 ## Evidence and limitations
 
-- 로컬 검증 상한은 정적 코드·fixture `V2`다. 실제 Gemini API, 외부 페이지, GitHub-hosted
-  runner, Issue 댓글, branch push와 PR 생성은 이번 실행에서 호출하지 않았다.
-- 모델 요청 수는 코드 경로와 mock call count로 1회임을 확인했지만 실제 provider가 quota를
-  차감하는 방식, token 수와 모델 가용성은 `unknown`이다.
+- 로컬 검증 상한은 정적 코드·fixture `V2`다. 후속 GitHub-hosted runner에서 외부 페이지와
+  Gemini API 응답 저장까지 관찰했지만 Issue 결과 댓글과 PR 생성은 아직 실행되지 않았다.
+- 모델 요청 수는 코드 경로와 mock call count로 1회임을 확인했다. 실제 run에서도 응답은
+  저장됐지만 provider의 quota 차감 방식과 token 수는 `unknown`이다.
 - DNS 검사와 실제 TLS 연결 사이의 rebinding 가능성을 stdlib 검사만으로 완전히 제거하지
   못한다. 신뢰된 repository 구성원만 자동 실행시키는 기존 gate를 유지한다.
 - 소스 본문은 50,000자, 각 KB context는 20,000자로 잘리므로 전체 저장소 중복성 검사가
   아니라 제공된 index·catalog 범위의 자동 선별 판단이다.
-- 외부 write, push, merge, 배포, credential 변경과 실제 비용 발생 호출은 수행하지 않았다.
+- 승인 범위에서 `main` push와 Issue 상태 변경을 수행했다. merge, 배포와 credential 변경은
+  수행하지 않았다. Gemini API의 실제 비용은 관찰하지 못해 `unknown`이다.
+
+## GitHub Actions 재실행 관찰
+
+- commit `47b3c8489ed3180bbeed1def9ddb47bc07e075c7`을 `main`에 push하고 Issue #2와
+  #3을 닫았다가 다시 열었다.
+- Issue #2 run `31893846690`은 source fetch와 단일 Gemini API 응답 저장까지 완료했으나,
+  상대 `response_path`를 절대 `REPO_ROOT`에 바로 `relative_to`한 사후 로그 출력 결함으로
+  exit `1`이 됐다. API 호출 실패나 quota 오류가 아니다.
+- Issue #3 run `31893848795`는 사설 IP URL을 Gemini 호출 전에 거부해 예상대로 exit `1`이었다.
+- 관찰된 결함은 상대 출력 경로를 `REPO_ROOT` 기준으로 정규화하고 동일 상대경로 fixture를
+  추가해 수정한다. 수정 후 실제 정상 분기 E2E 결과는 후속 run에서 별도로 확인한다.

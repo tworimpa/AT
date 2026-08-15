@@ -159,9 +159,12 @@ class AnalyzeTests(unittest.TestCase):
                     clear=True,
                 ),
             ):
-                kb_link_intake.analyze_once(response_path)
+                result_path = kb_link_intake.analyze_once(
+                    Path("gemini-artifacts/response.json")
+                )
 
             opener.open.assert_called_once()
+            self.assertEqual(result_path, response_path)
             request = opener.open.call_args.args[0]
             self.assertNotIn("test-secret", request.full_url)
             self.assertEqual(request.get_header("X-goog-api-key"), "test-secret")

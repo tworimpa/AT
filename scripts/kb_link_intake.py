@@ -202,13 +202,14 @@ KNOWLEDGE GRAPH SCHEMA:
         raise IntakeError("Gemini API response contains no candidate text") from error
     if not isinstance(model_text, str):
         raise IntakeError("Gemini API candidate text is invalid")
-    response_path.parent.mkdir(parents=True, exist_ok=True)
-    response_path.write_text(
+    output_path = response_path if response_path.is_absolute() else REPO_ROOT / response_path
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
         json.dumps({"response": model_text}, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    print(f"Gemini analysis written to {response_path.relative_to(REPO_ROOT)}")
-    return response_path
+    print(f"Gemini analysis written to {output_path.relative_to(REPO_ROOT)}")
+    return output_path
 
 
 def validate_public_https_url(raw_url: str) -> str:
