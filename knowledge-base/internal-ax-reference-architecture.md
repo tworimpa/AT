@@ -23,7 +23,7 @@ verification_ceiling: V2
 
 [지식 베이스 홈](./index.md) · [지속 컨텍스트](./ax-platform-context.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [플랫폼 구현 청사진](./platform-blueprint.md) · [도구 카탈로그](./tools/catalog.md) · [프로필 커버리지](./tools/coverage.md) · [지식 그래프 스키마](./knowledge-graph-schema.md)
 
-이 문서는 단일 도구 조합이나 구매 목록이 아니라 사내 AX용 맞춤 플랫폼의 설계 기준선이다. 35개 fixed-SHA 조사 결과를 `Borrow/Adapt/Avoid/Build` 재료로 사용하되, 회사 고유 조건이 결정되기 전에는 제안 상태를 유지한다. 현재 증거 ceiling은 문서·정적 코드 통합 `V2`; build/runtime/E2E/운영 적합성은 미검증이다.
+이 문서는 단일 도구 조합이나 구매 목록이 아니라 사내 AX용 맞춤 플랫폼의 설계 기준선이다. 40개 fixed-SHA 조사 결과를 `Borrow/Adapt/Avoid/Build` 재료로 사용하되, 회사 고유 조건이 결정되기 전에는 제안 상태를 유지한다. 현재 증거 ceiling은 문서·정적 코드 통합 `V2`; build/runtime/E2E/운영 적합성은 미검증이다.
 
 ## Architecture principles
 
@@ -64,8 +64,8 @@ flowchart TB
 | Control plane | Task/Run/Event, dependency DAG, ready 계산, atomic claim, lease/generation, cancellation, reconciliation, resource/merge lane | AI planner가 durable state를 직접 덮어쓰지 않음; UI projection을 source of truth로 쓰지 않음 | agtx·Taskplane·Beads·Agent Orchestrator·Gas Town 프로필의 fixed-SHA Claims (`V2`) |
 | Executor | 공통 command/event/cancel/artifact contract, Windows/Linux native process·PTY lifecycle, worktree와 non-file resource lease, environment fingerprint, local/remote provider contract | worktree를 security sandbox로 과장하지 않음; WSL/container/remote guest를 host-native 증거로 세지 않음 | Orca·Emdash·Container Use·E2B·Vercel·Cloudflare 조사 (`V1/V2`; 기존 Windows 최대 legacy `W1`, Linux 실행 evidence 없음) |
 | Adapter | ACP/typed session·capability·permission·cancel, CLI/PTY fallback, SCM/CI/ticket/message connector | heuristic adapter는 confidence와 unsupported capability를 숨기지 않음 | ACP·acpx·AgentAPI·Codex·Buzz·gh-aw fixed-SHA Claims |
-| Evidence | structured receipt, artifact/log hash, independent verifier, fresh-base diff/test, failure evidence, provenance | completion report ≠ verified; CI ≠ deploy/production | schema Evidence contract와 planning acceptance; 현재 실행 evidence 없음 |
-| Policy | identity, RBAC/ABAC, approval, secret audience, egress, retention, model/data policy, external write gate | policy 누락·stale approval·우회 flag는 허용으로 해석하지 않음 | gh-aw·sandbox·gateway 조사와 사내 미결정 `AX-D001~D012` |
+| Evidence | structured receipt, artifact/log hash, independent verifier, fresh-base diff/test, failure evidence, provenance | completion report ≠ verified; CI ≠ deploy/production | schema Evidence contract, Entire checkpoint lineage와 promptfoo eval/failure fixture `V2`; 현재 runtime evidence 없음 |
+| Policy | identity, RBAC/ABAC, approval, secret audience, egress, retention, model/data policy, external write와 skill-install gate | policy 누락·stale approval·우회 flag는 허용으로 해석하지 않음 | gh-aw·sandbox·gateway·SkillSpector 조사와 사내 미결정 `AX-D001~D012` |
 | Knowledge ingestion | manifest/submodule provenance, ToolVersion/observation/snapshot 분리, Claim/Evidence graph, decision/roadmap linkage | live upstream 관찰이 fixed Claim을 덮어쓰지 않음; private secret/endpoint 저장 금지 | [지식 그래프 스키마](./knowledge-graph-schema.md)와 [하이브리드 정책](./ax-platform-context.md#hybrid-source-policy-for-future-targets) |
 
 ## Minimal core and optional extensions
@@ -115,6 +115,8 @@ Minimal core는 remote sandbox, mobile relay, 자연어 coordinator나 graph DB�
 | read-only proposal / guarded write | 자동화가 외부 시스템을 과권한으로 변경하는 위험 축소 | `AD-PROP-009`: agent proposal과 write executor·approval 분리 | `RM-P4-safe-output`, `RM-P4-threat-fixtures` | gh-aw `I2/V2/W1` CLI; approve bypass와 proxy 한계 명시 |
 | fixed-version knowledge provenance | 설계 지식의 재현성과 drift 관리 | `AD-PROP-010`: hybrid submodule/manifest + Claim/Evidence graph | `RM-K0-profile-coverage`, `RM-K1-generated-index` | 이 저장소 `.gitmodules`, gitlinks, profiles; `I2/V2` document integration |
 | governed agent memory plane | 반복 작업을 줄이되 tenant·provenance·review·revoke·retention을 보존 | `AD-PROP-011`: memory asset와 실행/evidence state를 분리하고 recall은 권한·budget 뒤 수행 | `RM-K2-memory-plane-evaluation` | [TencentDB Agent Memory profile](./tools/tencentdb-agent-memory.md) `I2/V2`, Windows `P0`, Linux `P1`; runtime 없음 |
+| portable skill/plugin artifact and install gate | procedural knowledge와 MCP component를 재사용하되 executable content와 권한을 통제 | `AD-PROP-012`: Agent Skills와 Agent Plugins package revision을 고정하고 provenance·review·revoke·permission·sandbox 및 SkillSpector scan을 별도 gate로 둠 | `RM-K3-skill-registry`, `RM-K4-skill-supply-chain` | Agent Skills·Agent Plugins Spec·SkillSpector profiles `I2/V2`; install/runtime·false-negative evidence 없음 |
+| trace-backed evaluation and session lineage | agent 자기보고 대신 재현 가능한 fixture·trajectory·checkpoint를 보존 | `AD-PROP-013`: promptfoo eval/red-team과 Entire Git lineage를 verifier evidence와 분리해 연결 | `RM-P3-agent-eval`, `RM-P3-session-provenance` | promptfoo·Entire profiles `I2/V2`; 실제 `V4/V5` 실행 없음 |
 | budget/concurrency telemetry | 부서별 비용·capacity 통제 | `AD-NEEDED-011`: chargeback·quota 정책 결정 후 구현 | `RM-P4-budget-policy` | 회사 입력 `AX-D010` unknown; 실행 cost/latency evidence 없음 |
 
 ## Using Borrow / Adapt / Avoid / Build

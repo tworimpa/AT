@@ -19,11 +19,11 @@ verification_ceiling: V2
 
 # Cross-platform 맞춤형 에이전트 플랫폼 청사진
 
-[지식 베이스 홈](./index.md) · [AX 플랫폼 지속 컨텍스트](./ax-platform-context.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [35개 도구 카탈로그](./tools/catalog.md) · [프로필 커버리지](./tools/coverage.md) · [스키마와 작성 규칙](./knowledge-graph-schema.md)
+[지식 베이스 홈](./index.md) · [AX 플랫폼 지속 컨텍스트](./ax-platform-context.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [40개 도구 카탈로그](./tools/catalog.md) · [프로필 커버리지](./tools/coverage.md) · [스키마와 작성 규칙](./knowledge-graph-schema.md)
 
 이 문서는 [상세 오케스트레이션 기획](../planning/FAST_MULTI_AGENT_ORCHESTRATION_PLAN.md)과 [요구사항 명세](../planning/AI_AGENT_DEVELOPMENT_ENVIRONMENT_REQUIREMENTS.md)의 탐색용 의사결정 뷰다. 구현 완료 보고가 아니며 현재 상태는 설계·정적 근거 `V2`다.
 
-35개 도구의 판단은 단일 제품 도입 결론이 아니라 `Borrow`·`Adapt`·`Avoid`·`Build` 설계 재료다. 전사 업무·권한·감사·보안·운영 질문과 계층 경계는 [사내 AX reference architecture](./internal-ax-reference-architecture.md)를 기준으로 하고, 이 문서는 기술 구현 순서와 acceptance를 구체화한다.
+40개 도구의 판단은 단일 제품 도입 결론이 아니라 `Borrow`·`Adapt`·`Avoid`·`Build` 설계 재료다. 전사 업무·권한·감사·보안·운영 질문과 계층 경계는 [사내 AX reference architecture](./internal-ax-reference-architecture.md)를 기준으로 하고, 이 문서는 기술 구현 순서와 acceptance를 구체화한다.
 
 ## 제품 목표
 
@@ -93,10 +93,10 @@ flowchart LR
 
 | 우선 | 기간 | 결과물 | exit evidence |
 |---|---|---|---|
-| P0 계약·baseline | decision-needed | Task/Run/Event/Resource 스키마, deterministic fake worker, 공통 agent/executor adapter contract, Windows/Linux benchmark repo | schema·restart·duplicate/stale-generation fixture; 아직 agent나 OS 지원 완료 아님 |
+| P0 계약·baseline | decision-needed | Task/Run/Event/Resource·SkillArtifact·PluginArtifact 스키마, deterministic fake worker, 공통 agent/executor adapter contract, Windows/Linux benchmark repo | schema·restart·duplicate/stale-generation fixture; 아직 agent나 OS 지원 완료 아님 |
 | P1 Cross-platform local kernel | decision-needed | SQLite WAL, CLI/API, Windows native executor, Linux native executor, staged worktree provisioning, atomic claim | 양쪽 OS의 실제 `P2`, 공통 conformance receipt, cancel과 process-tree 회수 evidence |
 | P2 실제 agent·병렬 worktree | decision-needed | Codex·Claude adapter, DAG scheduler, dependency/resource gate, 4-agent board, isolated/shared group, Git·PR·CI projection | adapter conformance, 20-task DAG duplicate claim 0, worktree/resource collision 0 |
-| P3 검증·복구 | decision-needed | independent verifier, CompletionEvidence, crash reconciliation, watchdog, merge lane | false-complete, restart, orphan, fresh-base와 conflict injection 결과 |
+| P3 검증·복구 | decision-needed | independent verifier, CompletionEvidence, trace-backed agent eval, session provenance, crash reconciliation, watchdog, merge lane | false-complete, eval fixture, checkpoint recovery, restart, orphan, fresh-base와 conflict injection 결과 |
 | P4 Governed·remote | decision-needed | approval/policy, WSL/SSH/container/cloud provider, secret handle, snapshot/fork, egress/retention preview, gh-aw prototype | native/guest/remote conformance 분리, secret inheritance 0, tampered proposal write 100% 차단 |
 | P5 hardening | decision-needed | Windows long-path/CRLF/Job Object와 Linux signal/cgroup/permission/symlink suite, adapter compatibility, chaos/DB/merge-race, telemetry/redaction | 양쪽 OS의 `P3` 회귀 suite와 `V5` E2E/failure-injection evidence |
 
@@ -111,12 +111,14 @@ flowchart LR
 - Orca·Emdash의 worktree 관제와 staged provisioning
 - Beads의 atomic ready/claim, Taskplane의 wave/lane, sudocode의 intent/run graph 분리
 - independent verifier, evidence package, fresh-base merge lane
+- Agent Skills·Agent Plugins package revision과 install-time provenance/permission/scan gate
 
 ### 독립 pilot
 
 - **Native local orchestration**: 승인된 Windows와 Linux 환경 각각에서 같은 deterministic kernel·agent adapter suite, 이후 20-task DAG와 4 concurrent worktree.
 - **Remote executor**: 같은 task/image를 E2B와 Vercel Sandbox에서 create/resume/fork.
 - **Event automation**: gh-aw read-only agent proposal과 safe-output mock write.
+- **Evaluation·skill supply chain**: promptfoo deterministic fixture/red-team trace와 SkillSpector static-only install gate를 credential 없이 먼저 비교.
 - **Local container**: Container Use형 20 environment, cache invalidation, privileged/secret leakage.
 - **후속 remote**: 첫 remote A/B가 통과한 뒤 Cloudflare runtime generation과 preview fencing.
 

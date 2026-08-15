@@ -1,23 +1,23 @@
 ---
 id: tool-catalog-2026-08-14
 type: catalog
-title: 35개 AI 에이전트 도구 역할 및 도입 판단
+title: 40개 AI 에이전트 도구 역할 및 도입 판단
 status: active
 tags:
   - knowledge-base
   - tool-catalog
   - provenance
-observed_at: 2026-08-14
-source_parent_commit: caaae4a47a127808eedac657c394b6a8fd9be460
+observed_at: 2026-08-15
+source_parent_commit: 91d6d075d53185667e20996cc94ec7e10537d02c
 origin_integrity: I2
 verification_ceiling: V2
 ---
 
-# 35개 AI 에이전트 도구 역할 및 도입 판단
+# 40개 AI 에이전트 도구 역할 및 도입 판단
 
 [지식 베이스 홈](../index.md) · [플랫폼 청사진](../platform-blueprint.md) · [스키마와 작성 규칙](../knowledge-graph-schema.md)
 
-이 문서는 기존 상세 분석을 다시 풀어 쓰는 보고서가 아니라 역할별 탐색 인덱스다. 기능·제약의 상세 근거는 [저장소 분석](../../planning/REPOSITORY_GITHUB_ANALYSIS.md), [소스 스냅샷 인덱스](../../multi-agent-tools/README.md)와 각 ToolVersion 프로필을 따른다. 기존 33개 SHA는 부모 저장소 `4e6731a1b274eba5a8451b97594aadcf570108ee`의 gitlink이며, Paseo는 2026-08-14에 fixed-SHA gitlink로 추가됐다. TencentDB Agent Memory는 2026-08-15 official commit을 manifest-only로 추가했으며 official upstream과 pin은 해당 프로필에 보존한다.
+이 문서는 기존 상세 분석을 다시 풀어 쓰는 보고서가 아니라 역할별 탐색 인덱스다. 기능·제약의 상세 근거는 [저장소 분석](../../planning/REPOSITORY_GITHUB_ANALYSIS.md), [소스 스냅샷 인덱스](../../multi-agent-tools/README.md)와 각 ToolVersion 프로필을 따른다. 기존 33개 SHA는 부모 저장소 `4e6731a1b274eba5a8451b97594aadcf570108ee`의 gitlink이며, Paseo는 2026-08-14에 fixed-SHA gitlink로 추가됐다. TencentDB Agent Memory와 2026-08-15 starred-repository 조사에서 선별한 Agent Skills, Agent Plugins Spec, Entire CLI, promptfoo, SkillSpector는 official commit을 manifest-only로 고정했으며 upstream과 pin은 각 프로필에 보존한다.
 
 ## 판단 기호
 
@@ -78,6 +78,16 @@ verification_ceiling: V2
 | [acpx](https://github.com/openclaw/acpx) | [`5ef9b5849e137310a1c6f6e06d82ca606c2d8fb3`](./acpx.md) | stateful ACP client, queue owner와 generation lease | 파일럿: persistent session 참고 구현 | `I2 / V2 / W1` |
 | [AgentAPI](https://github.com/coder/agentapi) | [`9ff117e231822f670305254ef24f6389f75953f4`](./agentapi.md) | protocol 없는 CLI의 HTTP/SSE·PTY bridge | 파일럿: low-confidence fallback 전용 | `I2 / V2 / W1` |
 
+## Skill supply chain, provenance와 evaluation
+
+| 도구와 공식 출처 | 고정 ToolVersion / snapshot | 주 역할 | 판단 | 현재 등급 |
+|---|---|---|---|---|
+| [Agent Skills](https://github.com/agentskills/agentskills) | [`69ef37e9424c0a7ea9dd2293b559e43ec8176379`](./agent-skills.md) | portable `SKILL.md` 패키지와 progressive disclosure 규격 | 참고: skill artifact 최소 계약; provenance·권한·sandbox는 별도 gate로 보강 | `I2 / V2 / windows:P0 / linux:P0` |
+| [Agent Plugins Specification](https://github.com/agentplugins/agent-plugins-spec) | [`bd383552095128f6effe895b9257cfd580a6d179`](./agent-plugins-spec.md) | Agent Skills와 MCP를 versioned closed manifest·fixed discovery로 묶는 portable plugin 규격 | 참고: package/loader·component failure contract; publisher trust·secret·sandbox는 별도 gate | `I2 / V2 / windows:P0 / linux:P0` |
+| [Entire CLI](https://github.com/entireio/cli) | [`7ddf2fc26c1ba521309ca2b5cf356d1e54228afb`](./entire-cli.md) | agent session·transcript·checkpoint를 Git object/ref와 연결하는 provenance 도구 | 참고: Git-backed evidence lineage; attribution·best-effort signing을 verifier proof로 사용 금지 | `I2 / V2 / windows:P1 / linux:P1` |
+| [promptfoo](https://github.com/promptfoo/promptfoo) | [`ab84555c1b0ff74eca6b03abb7936ac9a0149242`](./promptfoo.md) | prompt·agent·RAG evaluation, red-team과 trace-backed failure fixture | 파일럿: verifier/V5 failure-injection harness; provider·telemetry·custom-code 경계 선결 | `I2 / V2 / windows:P0 / linux:P0` |
+| [NVIDIA SkillSpector](https://github.com/NVIDIA/SkillSpector) | [`5680c2c3008e63c9979bbbe08221ee4c2dcd17ee`](./skillspector.md) | agent skill 정적·선택적 semantic 검사와 completeness ledger | 파일럿: skill 설치 전 supply-chain gate; unauthenticated MCP HTTP와 LLM 경계 보강 | `I2 / V2 / windows:P0 / linux:P1` |
+
 ## Local·remote executor와 sandbox
 
 | 도구와 공식 출처 | 고정 ToolVersion / snapshot | 주 역할 | 판단 | 현재 등급 |
@@ -118,6 +128,7 @@ verification_ceiling: V2
 3. **선택형 협업**: Buzz signed relay와 squad식 local queue를 서로 다른 trust boundary로 둔다.
 4. **실행기 확장**: E2B와 Vercel을 먼저 동일 conformance suite로 비교하고, Container Use와 Cloudflare는 독립 pilot로 평가한다.
 5. **확장 표면**: OpenHands의 capability negotiation, DeepSeek Harness의 plugin seam, Hermes/OpenClaw의 intake provenance를 핵심 runtime과 분리해 참고한다.
+6. **Skill·검증 공급망**: Agent Skills를 최소 skill contract, Agent Plugins를 skill+MCP package contract로 삼고 SkillSpector 설치 gate, promptfoo failure fixture, Entire의 Git-backed lineage를 서로 다른 trust boundary로 연결한다.
 
 ## 명시적 비채택·보류
 
