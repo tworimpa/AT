@@ -9,21 +9,21 @@ tags:
   - knowledge-base
   - ai-agent
   - index
-observed_at: 2026-08-15
+observed_at: 2026-08-21
 source_parent_commit: 91d6d075d53185667e20996cc94ec7e10537d02c
 ---
 
 # AI 에이전트 지식 베이스
 
-이 디렉터리는 40개 AI 에이전트 도구·서비스의 조사 결과와 앞으로의 실험 증거를 Obsidian에서 계속 연결해 가는 저장소 내 지식 베이스다. 상세 분석과 요구사항은 기존 `planning/` 문서를 원본으로 유지하고, 여기서는 도구·역할·기능·출처·검증 상태 사이의 탐색 경로와 현재 결정을 제공한다.
+이 디렉터리는 42개 AI 에이전트 도구·서비스의 조사 결과와 앞으로의 실험 증거를 Obsidian에서 계속 연결해 가는 저장소 내 지식 베이스다. 상세 분석과 요구사항은 기존 `planning/` 문서를 원본으로 유지하고, 여기서는 도구·역할·기능·출처·검증 상태 사이의 탐색 경로와 현재 결정을 제공한다.
 
 ## 지금 확인된 상태
 
 | 항목 | 현재 상태 | 해석 |
 |---|---|---|
-| 조사 대상 | 40개 Tool, 40개 고정 ToolVersion | 기존 34개는 gitlink, 신규 6개는 manifest-only official commit으로 고정한다. |
+| 조사 대상 | 42개 Tool, 42개 고정 ToolVersion | 기존 34개는 gitlink, 신규 8개는 manifest-only official commit으로 고정한다. |
 | 부모 기준점 | `91d6d075d53185667e20996cc94ec7e10537d02c` | 2026-08-15 starred-repository 조사를 시작할 때 읽은 로컬 `main` 스냅샷이다. |
-| 출처 무결성 | 40/40 `I2` | 기존 34개는 fixed SHA gitlink, manifest-only 6개는 official upstream HEAD와 immutable commit 일치를 확인했다. |
+| 출처 무결성 | 42/42 `I2` | 기존 34개는 fixed SHA gitlink, manifest-only 8개는 official upstream HEAD와 immutable commit 일치를 확인했다. |
 | 기능 검증 | 최대 `V2` | 문서·고정 SHA 소스의 정적 분석까지다. 의존성 설치와 전체 build는 수행하지 않았다. |
 | 실행 검증 | `V3+` evidence 0건 | build, 통제 runtime, E2E/failure injection, 운영 검증은 아직 없다. |
 | 플랫폼 검증 | 최대 정적 `P1` | 기존 Windows 조사는 최대 legacy `W1`이며 실제 Windows/Linux native 실행(`P2`)과 플랫폼별 회귀 suite(`P3`)는 없다. Linux 지원 매트릭스는 아직 체계적으로 작성되지 않았다. |
@@ -36,8 +36,8 @@ source_parent_commit: 91d6d075d53185667e20996cc94ec7e10537d02c
 - [AX-AD-001 Cross-platform core 결정](./decisions/AX-AD-001-cross-platform-core.md): Windows와 Linux native executor를 모두 core로 두는 승인된 플랫폼 범위와 아직 미결인 support matrix
 - [KB-AD-001 컨텍스트 효율·lifecycle·검증 결정](./decisions/KB-AD-001-context-efficiency-governance.md): frontmatter/index 유지, 역사 상태와 검증 강화, JSON·bundler·MCP 도입 조건
 - [사내 AX reference architecture](./internal-ax-reference-architecture.md): Windows/Linux native를 포함한 cross-platform 계층 구조, 최소 코어·확장 옵션, Capability→AX Need→결정·로드맵 연결
-- [40개 도구 역할·도입 카탈로그](./tools/catalog.md): 역할별 조사 목록, 공식 upstream, 고정 SHA, 도입 판단과 현재 증거 등급
-- [40개 ToolVersion 프로필 커버리지](./tools/coverage.md): schema v2/v3 프로필·필수 섹션·provenance와 플랫폼 evidence 이관 현황
+- [42개 도구 역할·도입 카탈로그](./tools/catalog.md): 역할별 조사 목록, 공식 upstream, 고정 SHA, 도입 판단과 현재 증거 등급
+- [42개 ToolVersion 프로필 커버리지](./tools/coverage.md): schema v2/v3 프로필·필수 섹션·provenance와 플랫폼 evidence 이관 현황
 - [Paseo 고정 ToolVersion 프로필](./tools/paseo.md): multi-provider control plane, protocol, Windows 정적 근거와 명시적 한계
 - [TencentDB Agent Memory 고정 ToolVersion 프로필](./tools/tencentdb-agent-memory.md): 계층형 memory/knowledge asset plane, ACL·binding, retention·backend failure 경계
 - [Agent Skills 고정 ToolVersion 프로필](./tools/agent-skills.md): portable skill package, progressive disclosure와 validator/security 경계
@@ -45,6 +45,8 @@ source_parent_commit: 91d6d075d53185667e20996cc94ec7e10537d02c
 - [Entire CLI 고정 ToolVersion 프로필](./tools/entire-cli.md): Git-backed session/checkpoint provenance와 privacy/signing 한계
 - [promptfoo 고정 ToolVersion 프로필](./tools/promptfoo.md): evaluation·red-team·trace evidence와 provider/telemetry 경계
 - [NVIDIA SkillSpector 고정 ToolVersion 프로필](./tools/skillspector.md): skill supply-chain scan, inspection completeness와 MCP 경계
+- [Mozilla AI cq 고정 ToolVersion 프로필](./tools/cq.md): local-first agent knowledge loop, confidence와 remote publish 경계
+- [Apache Answer 고정 ToolVersion 프로필](./tools/apache-answer.md): human-curated Q&A, MCP/AI/vector plugin과 ACL·egress 경계
 - [에이전트 실행 프로파일](./agent-profiles.md): 역할과 분리된 모델 등급·effort·권한·예산·증거·escalation 정책
 - [공통 에이전트 운영 규칙](../AGENTS.md): 모든 작업에 지속 적용되는 범위·권한·증거·완료 보고 규칙
 - [Cross-platform 에이전트 플랫폼 청사진](./platform-blueprint.md): 목표 구조, 에이전트 역할, 우선 로드맵과 결정 게이트

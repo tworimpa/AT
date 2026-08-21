@@ -1,23 +1,23 @@
 ---
 id: tool-catalog-2026-08-14
 type: catalog
-title: 40개 AI 에이전트 도구 역할 및 도입 판단
+title: 42개 AI 에이전트 도구 역할 및 도입 판단
 status: active
 tags:
   - knowledge-base
   - tool-catalog
   - provenance
-observed_at: 2026-08-15
+observed_at: 2026-08-21
 source_parent_commit: 91d6d075d53185667e20996cc94ec7e10537d02c
 origin_integrity: I2
 verification_ceiling: V2
 ---
 
-# 40개 AI 에이전트 도구 역할 및 도입 판단
+# 42개 AI 에이전트 도구 역할 및 도입 판단
 
 [지식 베이스 홈](../index.md) · [플랫폼 청사진](../platform-blueprint.md) · [스키마와 작성 규칙](../knowledge-graph-schema.md)
 
-이 문서는 기존 상세 분석을 다시 풀어 쓰는 보고서가 아니라 역할별 탐색 인덱스다. 기능·제약의 상세 근거는 [저장소 분석](../../planning/REPOSITORY_GITHUB_ANALYSIS.md), [소스 스냅샷 인덱스](../../multi-agent-tools/README.md)와 각 ToolVersion 프로필을 따른다. 기존 33개 SHA는 부모 저장소 `4e6731a1b274eba5a8451b97594aadcf570108ee`의 gitlink이며, Paseo는 2026-08-14에 fixed-SHA gitlink로 추가됐다. TencentDB Agent Memory와 2026-08-15 starred-repository 조사에서 선별한 Agent Skills, Agent Plugins Spec, Entire CLI, promptfoo, SkillSpector는 official commit을 manifest-only로 고정했으며 upstream과 pin은 각 프로필에 보존한다.
+이 문서는 기존 상세 분석을 다시 풀어 쓰는 보고서가 아니라 역할별 탐색 인덱스다. 기능·제약의 상세 근거는 [저장소 분석](../../planning/REPOSITORY_GITHUB_ANALYSIS.md), [소스 스냅샷 인덱스](../../multi-agent-tools/README.md)와 각 ToolVersion 프로필을 따른다. 기존 33개 SHA는 부모 저장소 `4e6731a1b274eba5a8451b97594aadcf570108ee`의 gitlink이며, Paseo는 2026-08-14에 fixed-SHA gitlink로 추가됐다. TencentDB Agent Memory와 2026-08-15 선별 대상 5개, 2026-08-21 추가한 Mozilla AI cq와 Apache Answer는 official commit을 manifest-only로 고정했으며 upstream과 pin은 각 프로필에 보존한다.
 
 ## 판단 기호
 
@@ -69,6 +69,8 @@ verification_ceiling: V2
 | 도구와 공식 출처 | 고정 ToolVersion / snapshot | 주 역할 | 판단 | 현재 등급 |
 |---|---|---|---|---|
 | [TencentDB Agent Memory](https://github.com/TencentCloud/TencentDB-Agent-Memory) | [`9059e52d11b7e66c2a3b5eb6161e4b4b8603c8c2`](./tencentdb-agent-memory.md) | 계층형 Memory·Skill·Wiki·CodeGraph 자산과 팀 ACL·Agent binding을 제공하는 memory/knowledge plane | 파일럿: asset governance·on-demand retrieval 참고; tenant/retention/backend failure 검증 전 직접 통합 보류 | `I2 / V2 / windows:P0 / linux:P1` |
+| [Mozilla AI cq](https://github.com/mozilla-ai/cq) | [`4cd0220a5582f5bf71e0dc0b1625b3b93c2238fd`](./cq.md) | query-before-retry와 propose/confirm/flag를 결합한 local-first agent knowledge commons | 파일럿: operational learning loop; confidence·remote publish·tenant/secret 경계 선결 | `I2 / V2 / windows:P1 / linux:P1` |
+| [Apache Answer](https://github.com/apache/answer) | [`3b9f1370612e690a0b7f230f05e688930db4c6d3`](./apache-answer.md) | human-curated Q&A를 Web/REST/MCP/AI로 제공하는 self-hosted knowledge portal | 참고: knowledge portal·MCP retrieval; plugin isolation·ACL parity·model egress 검증 필요 | `I2 / V2 / windows:P0 / linux:P1` |
 
 ## Protocol과 adapter
 

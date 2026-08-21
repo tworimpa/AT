@@ -10,14 +10,14 @@ tags:
   - handoff
   - governance
 observed_at: 2026-08-14
-last_reviewed: 2026-08-15
+last_reviewed: 2026-08-21
 source_parent_commit: 91d6d075d53185667e20996cc94ec7e10537d02c
 verification_ceiling: V2
 ---
 
 # 사내 AX 맞춤형 에이전트 플랫폼 지속 컨텍스트
 
-[지식 베이스 홈](./index.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [KB 컨텍스트·lifecycle 결정](./decisions/KB-AD-001-context-efficiency-governance.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [40개 ToolVersion 커버리지](./tools/coverage.md) · [스키마와 소스 운영 규칙](./knowledge-graph-schema.md) · [플랫폼 청사진](./platform-blueprint.md)
+[지식 베이스 홈](./index.md) · [플랫폼 범위 결정](./decisions/AX-AD-001-cross-platform-core.md) · [KB 컨텍스트·lifecycle 결정](./decisions/KB-AD-001-context-efficiency-governance.md) · [사내 AX reference architecture](./internal-ax-reference-architecture.md) · [42개 ToolVersion 커버리지](./tools/coverage.md) · [스키마와 소스 운영 규칙](./knowledge-graph-schema.md) · [플랫폼 청사진](./platform-blueprint.md)
 
 이 문서는 다음 세션과 에이전트가 작업 전에 읽는 짧은 지속 컨텍스트다. 상세 Claim과 source of truth를 대체하지 않으며, 서로 충돌하면 fixed-SHA ToolVersion 프로필과 연결된 SourceArtifact/Evidence 및 최신 승인 Decision Log를 우선한다.
 
@@ -36,7 +36,7 @@ verification_ceiling: V2
 
 ## Baseline and provenance
 
-- 조사 집합: 부모 저장소의 34개 official-upstream fixed-SHA gitlink와 2026-08-15 manifest-only로 추가한 TencentDB Agent Memory, Agent Skills, Agent Plugins Spec, Entire CLI, promptfoo, SkillSpector fixed commit 6개.
+- 조사 집합: 부모 저장소의 34개 official-upstream fixed-SHA gitlink와 manifest-only로 추가한 TencentDB Agent Memory, Agent Skills, Agent Plugins Spec, Entire CLI, promptfoo, SkillSpector, Mozilla AI cq, Apache Answer fixed commit 8개.
 - 요청 기준점: `91d6d075d53185667e20996cc94ec7e10537d02c`.
 - 조사 환경 한계: 병렬 조사 worktree에서 submodule 본문이 비어 있을 수 있어 부모 `.gitmodules`와 `git ls-tree`로 URL·gitlink SHA를 확인하고, 공식 upstream의 fixed-SHA `tree`/`blob` 및 metadata URL로 정적 근거를 수집했다.
 - provenance 제한: 부모 GitHub 저장소의 submodule 내부 deep link는 official source 근거가 아니며 checkout 상태에 따라 열리지 않는다. 프로필 Claim은 official upstream fixed-SHA URL을 사용한다.
@@ -71,8 +71,8 @@ verification_ceiling: V2
 
 ## Current state
 
-- 40개 고정 ToolVersion이 catalog에 등록돼 있다. 기존 34개는 gitlink, 신규 6개는 official commit manifest-only다.
-- 상세 ToolVersion 프로필은 40/40 작성됐다. 기존 34개 중 schema v2 `covered` 23개와 `partial` 11개이며, manifest-only 프로필 6개는 template v3 `covered`다. 기존 프로필의 OS별 `platform_evidence`를 자동 변환하지 않는다.
+- 42개 고정 ToolVersion이 catalog에 등록돼 있다. 기존 34개는 gitlink, 신규 8개는 official commit manifest-only다.
+- 상세 ToolVersion 프로필은 42/42 작성됐다. 기존 34개 중 schema v2 `covered` 23개와 `partial` 11개이며, manifest-only 프로필 8개는 template v3 `covered`다. 기존 프로필의 OS별 `platform_evidence`를 자동 변환하지 않는다.
 - [사내 AX reference architecture](./internal-ax-reference-architecture.md)는 control plane, Windows/Linux native executor, adapter, evidence, policy, knowledge ingestion layer와 최소 코어/확장 옵션을 제안 상태로 정리한다.
 - 지식 그래프는 `Capability → AXNeed → ArchitectureDecision/RoadmapItem`과 각 edge의 source/evidence를 보존하도록 확장했다.
 - 현재 산출물은 문서·fixed-SHA 정적 통합 `V2`다. build/runtime/E2E는 수행하지 않았다.
@@ -122,4 +122,4 @@ verification_ceiling: V2
 
 ## Provenance note
 
-Last reviewed `2026-08-15`. 이 컨텍스트는 부모 저장소의 34개 `.gitmodules`/gitlink와 manifest-only 6개, 총 40개 fixed-SHA ToolVersion 정적 프로필 및 지식 베이스 통합 결과를 요약한다. 실행하지 않은 검증은 완료로 기록하지 않았으며, upstream의 현재 상태는 관찰일 이후 달라질 수 있다.
+Last reviewed `2026-08-21`. 이 컨텍스트는 부모 저장소의 34개 `.gitmodules`/gitlink와 manifest-only 8개, 총 42개 fixed-SHA ToolVersion 정적 프로필 및 지식 베이스 통합 결과를 요약한다. 실행하지 않은 검증은 완료로 기록하지 않았으며, upstream의 현재 상태는 관찰일 이후 달라질 수 있다.
